@@ -14,7 +14,11 @@ const listar = async () => {
   // Ordena por 'concluido' (false primeiro), depois por 'prioridade' (Alta, Media, Baixa) e depois 'dataCriacao' (mais recente)
   const prioridadeOrder = { Alta: 1, Media: 2, Baixa: 3 };
   
-  const tarefas = await Tarefa.find().sort({ concluido: 1, dataCriacao: -1 });
+  // --- ALTERAÇÃO ---
+  // Adicionado .populate('projeto') para "juntar" os dados do projeto
+  const tarefas = await Tarefa.find()
+    .populate('projeto') // <-- ADICIONADO AQUI
+    .sort({ concluido: 1, dataCriacao: -1 });
 
   // Ordenação personalizada para prioridade
   tarefas.sort((a, b) => {
@@ -29,12 +33,13 @@ const listar = async () => {
 
 /**
  * Cria uma nova tarefa no banco de dados.
- * @param {object} dadosTarefa - O objeto contendo os dados da nova tarefa (nome, prioridade).
+ * @param {object} dadosTarefa - O objeto contendo os dados da nova tarefa (nome, prioridade, projeto).
  * @returns {Promise<object>} Uma promessa que resolve para o documento da nova tarefa criada.
  */
 const criar = async (dadosTarefa) => {
-  // Pega apenas os campos esperados para evitar sobreposição
-  const { nome, prioridade } = dadosTarefa;
+  // --- ALTERAÇÃO ---
+  // Pega o campo 'projeto' do body
+  const { nome, prioridade, projeto } = dadosTarefa;
   
   if (!nome || !prioridade) {
     throw new Error('Nome e prioridade são obrigatórios.');
@@ -43,7 +48,8 @@ const criar = async (dadosTarefa) => {
   const novaTarefa = new Tarefa({
     nome,
     prioridade,
-    concluido: false, // Garante que começa como não concluída
+    projeto: projeto || null, // Salva o ID do projeto, ou null se não for enviado
+    concluido: false,
   });
   
   await novaTarefa.save();
@@ -136,6 +142,48 @@ const stats = async () => {
   }
 };
 
+
+/**
+ * Busca estatísticas de tarefas pendentes agrupadas por projeto.
+ * @returns {Promise<Array>} Um array com { projetoNome, count }.
+ */
+const statsPorProjeto = async () => {
+  try {
+    const stats = await Tarefa.aggregate([
+      { $match: { concluido: false } }, // Apenas tarefas pendentes
+      {
+        $group: {
+          _id: '$projeto', // Agrupa pelo ID do projeto
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $lookup: { // "Join" com a coleção de projetos
+          from: 'projetos',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'projetoInfo'
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          // Se projetoInfo não existir (tarefa sem projeto), usa 'Sem Projeto'
+          projetoNome: { $ifNull: [{ $arrayElemAt: ['$projetoInfo.nome', 0] }, 'Sem Projeto'] },
+          count: 1
+        }
+      },
+      { $sort: { count: -1 } } // Ordena pelo mais popular
+    ]);
+    return stats;
+  } catch (error) {
+    console.error('[Erro TarefaService.statsPorProjeto]', error.message);
+    throw new Error('Falha ao calcular estatísticas por projeto: ' + error.message);
+  }
+};
+// ------------------------------------
+
+
 // Exporta as funções do serviço
 module.exports = {
   listar,
@@ -143,4 +191,5 @@ module.exports = {
   remover,
   atualizar,
   stats,
+  statsPorProjeto 
 };

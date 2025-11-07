@@ -11,8 +11,19 @@ router.get('/', (req, res) => {
 // Rota /tarefas (carrega os dados do serviço)
 router.get('/tarefas', async (req, res) => {
   try {
-    const tarefas = await TarefaService.listar();
-    res.render('tarefas', { titulo: 'Lista de Tarefas', tarefas: tarefas || [] });
+    // --- ALTERAÇÃO ---
+    // Carrega tarefas E projetos em paralelo
+    const [tarefas, projetos] = await Promise.all([
+      TarefaService.listar(),
+      ProjetoService.listar() // <-- Carrega os projetos
+    ]);
+    
+    res.render('tarefas', { 
+      titulo: 'Lista de Tarefas', 
+      tarefas: tarefas || [],
+      projetos: projetos || [] // <-- Passa os projetos para a view
+    });
+    // ------------------
   } catch (error) {
     console.error('Erro ao carregar tarefas:', error);
     res.status(500).render('404', { titulo: 'Erro', mensagem: 'Erro ao carregar tarefas.' });

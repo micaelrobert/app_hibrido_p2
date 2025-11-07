@@ -34,6 +34,21 @@
           <option value="Alta">Alta</option>
         </select>
       </div>
+
+      <div class="form-group">
+        <label for="projeto-tarefa" class="console-label">>> Projeto:</label>
+        <select id="projeto-tarefa" name="projeto" class="form-input">
+          <option value="">[ Sem Projeto ]</option>
+          <% if (projetos && projetos.length > 0) { %>
+            <% projetos.forEach(projeto => { %>
+              <% if (!projeto.concluido) { %> 
+                <option value="<%= projeto._id %>"><%= projeto.nome %></option>
+              <% } %>
+            <% }) %>
+          <% } %>
+        </select>
+      </div>
+      
       <button type="submit" class="btn-hacker">[ Adicionar Tarefa ]</button>
     </form>
 
@@ -47,10 +62,14 @@
           >
             <span class="item-texto">
               <strong class="item-nome">[<%= tarefa.nome %>]</strong>
+              
+              <% if (tarefa.projeto) { %>
+                <span class="item-detalhe" style="color: #00ffff;">- Projeto: <%= tarefa.projeto.nome %></span>
+              <% } %>
+              
               <span class="item-detalhe">- Prioridade: <%= tarefa.prioridade %></span>
               <span class="item-data">(Criada em: <%= new Date(tarefa.dataCriacao).toLocaleDateString('pt-BR') %>)</span>
-            </span>
-            <div class="botoes-item">
+            </span> <div class="botoes-item">
               <button class="btn-acao btn-concluir">
                 <%= tarefa.concluido ? '[ Reabrir ]' : '[ Concluir ]' %>
               </button>
@@ -69,25 +88,28 @@
   // Adicionar Tarefa
   document.getElementById('form-nova-tarefa').addEventListener('submit', async function (e) {
     e.preventDefault();
-
+    
+    // CORREÇÃO: Constantes movidas para dentro do handler
     const nome = this.elements.nome.value;
     const prioridade = this.elements.prioridade.value;
+    const projeto = this.elements.projeto.value;
 
     try {
       const response = await fetch('/api/mongodb/tarefas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, prioridade }),
+        body: JSON.stringify({ nome, prioridade, projeto: projeto || null }),
       });
 
+      // CORREÇÃO: Bloco 'if' movido para dentro do 'try'
       if (!response.ok) {
-        throw new Error('Falha ao criar tarefa.');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Falha ao criar tarefa.');
       }
 
       const novaTarefa = await response.json();
-      adicionarTarefaNaLista(novaTarefa);
+      adicionarTarefaNaLista(novaTarefa); // 'novaTarefa' agora vem populada da API
 
-      // Limpar formulário
       this.reset();
       this.elements.nome.focus();
 
@@ -118,7 +140,6 @@
 
         const { data } = await response.json();
         
-        // Atualiza o estado no DOM
         li.dataset.concluido = data.concluido;
         li.classList.toggle('concluido', data.concluido);
         e.target.textContent = data.concluido ? '[ Reabrir ]' : '[ Concluir ]';
@@ -147,20 +168,17 @@
           throw new Error('Falha ao apagar tarefa.');
         }
 
-        // Remove o item da lista com animação
         li.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
         li.style.opacity = '0';
         li.style.transform = 'translateX(-100%)';
-        
+         
         setTimeout(() => {
           li.remove();
-          // Verifica se a lista ficou vazia
           const lista = document.getElementById('lista-tarefas');
           if (lista.children.length === 0) {
             lista.innerHTML = '<li id="sem-tarefas" class="console-text">>> Nenhuma tarefa encontrada. Sistema ocioso...</li>';
           }
         }, 500);
-
       } catch (error) {
         console.error('Erro ao apagar tarefa:', error);
         alert('Erro: ' + error.message);
@@ -173,7 +191,6 @@
 
   // Função para adicionar nova tarefa na lista (DOM)
   function adicionarTarefaNaLista(tarefa) {
-    // Remove a mensagem "sem tarefas" se existir
     const semTarefas = document.getElementById('sem-tarefas');
     if (semTarefas) {
       semTarefas.remove();
@@ -182,11 +199,16 @@
     const li = document.createElement('li');
     li.className = `item-lista prioridade-${tarefa.prioridade.toLowerCase()}`;
     li.dataset.id = tarefa._id;
-    li.dataset.concluido = 'false'; // Nova tarefa nunca está concluída
+    li.dataset.concluido = 'false';
+
+    const projetoHtml = tarefa.projeto
+      ? `<span class="item-detalhe" style="color: #00ffff;">- Projeto: ${tarefa.projeto.nome}</span>`
+      : '';
 
     li.innerHTML = `
       <span class="item-texto">
         <strong class="item-nome">[${tarefa.nome}]</strong>
+        ${projetoHtml}
         <span class="item-detalhe">- Prioridade: ${tarefa.prioridade}</span>
         <span class="item-data">(Criada em: ${new Date(tarefa.dataCriacao).toLocaleDateString('pt-BR')})</span>
       </span>
@@ -196,10 +218,7 @@
       </div>
     `;
 
-    // Adiciona no início da lista
     document.getElementById('lista-tarefas').prepend(li);
-    
-    // Adiciona os listeners para os botões da nova tarefa
     adicionarListenersAosBotoes(li);
   }
 </script>

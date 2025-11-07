@@ -2,7 +2,6 @@
  * Model Tarefa (Mongoose)
  *
  * Define o Schema e o Model para as Tarefas no MongoDB.
- * Esta versão foi corrigida para alinhar com o TarefaService e a view tarefas.ejs.
  */
 const mongoose = require('mongoose');
 
@@ -25,7 +24,12 @@ const TarefaSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    // O campo 'dataCriacao' agora é gerenciado pelo 'timestamps'
+    projeto: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Projeto',
+      required: false // 'false' para permitir tarefas sem projeto
+    }
+    // ------------------
   },
   {
     // Adiciona os campos 'createdAt' e 'updatedAt' automaticamente
@@ -38,5 +42,4 @@ const TarefaSchema = new mongoose.Schema(
 );
 
 // Cria e exporta o Model 'Tarefa'
-// O Mongoose usará o nome 'Tarefa' para criar a coleção 'tarefas'
 module.exports = mongoose.model('Tarefa', TarefaSchema);

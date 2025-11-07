@@ -19,7 +19,7 @@
     <div class="dashboard-grid">
       <div class="stat-card">
         <h2 class="card-title">Tarefas</h2>
-        <div class="stat-group">
+ <div class="stat-group">
           <p>Total: <span id="tarefas-total" class="stat-value">0</span></p>
           <p>Concluídas: <span id="tarefas-concluidas" class="stat-value" style="color: #00ff00;">0</span></p>
           <p>Pendentes: <span id="tarefas-pendentes" class="stat-value" style="color: #ff0000;">0</span></p>
@@ -27,7 +27,8 @@
         <h3 class="card-subtitle">Prioridades (Pendentes)</h3>
         <div class="stat-group priority-group">
           <p>Alta: <span id="tarefas-prio-alta" class="stat-value p-alta">0</span></p>
-          <p>Média: <span id="tarefas-prio-media" class="stat-value p-media">0</span></p>
+          <p>Média: <span id="tarefas-prio-media" 
+class="stat-value p-media">0</span></p>
           <p>Baixa: <span id="tarefas-prio-baixa" class="stat-value p-baixa">0</span></p>
         </div>
       </div>
@@ -38,7 +39,7 @@
           <p>Total: <span id="projetos-total" class="stat-value">0</span></p>
           <p>Concluídos: <span id="projetos-concluidos" class="stat-value" style="color: #00ff00;">0</span></p>
           <p>Pendentes: <span id="projetos-pendentes" class="stat-value" style="color: #ff0000;">0</span></p>
-        </div>
+     </div>
         <h3 class="card-subtitle">Prioridades (Pendentes)</h3>
         <div class="stat-group priority-group">
           <p>Alta: <span id="projetos-prio-alta" class="stat-value p-alta">0</span></p>
@@ -46,10 +47,16 @@
           <p>Baixa: <span id="projetos-prio-baixa" class="stat-value p-baixa">0</span></p>
         </div>
       </div>
-    </div>
 
-    <div class="stat-card chart-container">
-      <h2 class="card-title">Progresso Total (Tarefas + Projetos)</h2>
+      <div class="stat-card">
+        <h2 class="card-title">Tarefas Pendentes por Projeto</h2>
+        <div class="stat-group" id="tarefas-por-projeto-lista">
+          <p class="console-text">C:\\> Calculando...</p>
+        </div>
+      </div>
+      </div> <div class="stat-card chart-container">
+      <h2 class="card-title">Progresso Total 
+(Tarefas + Projetos)</h2>
       <canvas id="progressoTotalChart"></canvas>
     </div>
   </div>
@@ -58,45 +65,52 @@
 <script>
   document.addEventListener('DOMContentLoaded', async () => {
     const statusElement = document.getElementById('dashboard-status');
-    
-    try {
+try {
       // 1. Buscar os dados da API unificada
       const response = await fetch('/api/dashboard-stats');
-      if (!response.ok) {
+if (!response.ok) {
         throw new Error(`Falha ao buscar dados: ${response.statusText}`);
-      }
+}
       
       const jsonResponse = await response.json();
-      if (!jsonResponse.success || !jsonResponse.data) {
+if (!jsonResponse.success || !jsonResponse.data) {
         throw new Error('Resposta da API inválida.');
-      }
+}
       
-      const { tarefas: t, projetos: p } = jsonResponse.data;
-      statusElement.textContent = "C:\\> Dados_carregados_com_sucesso. Renderizando_gráficos...";
-      statusElement.style.color = '#00ff00'; // Verde hacker para sucesso
+      // --- ALTERAÇÃO: Pega a nova estatística ---
+      const { tarefas: t, projetos: p, tarefasPorProjeto: tpp } = jsonResponse.data;
+      // -----------------------------------------
+
+statusElement.textContent = "C:\\> Dados_carregados_com_sucesso. Renderizando_gráficos...";
+      statusElement.style.color = '#00ff00';
 
       // 2. Popular Card de Tarefas
-      document.getElementById('tarefas-total').textContent = t.total || 0;
+      document.getElementById('tarefas-total').textContent = t.total ||
+0;
       document.getElementById('tarefas-concluidas').textContent = t.concluidas || 0;
       document.getElementById('tarefas-pendentes').textContent = t.pendentes || 0;
       document.getElementById('tarefas-prio-alta').textContent = t.prioridades?.Alta || 0;
-      document.getElementById('tarefas-prio-media').textContent = t.prioridades?.Media || 0;
+      document.getElementById('tarefas-prio-media').textContent = t.prioridades?.Media ||
+0;
       document.getElementById('tarefas-prio-baixa').textContent = t.prioridades?.Baixa || 0;
 
       // 3. Popular Card de Projetos
-      document.getElementById('projetos-total').textContent = p.total || 0;
+      document.getElementById('projetos-total').textContent = p.total ||
+0;
       document.getElementById('projetos-concluidos').textContent = p.concluidas || 0;
       document.getElementById('projetos-pendentes').textContent = p.pendentes || 0;
       document.getElementById('projetos-prio-alta').textContent = p.prioridades?.Alta || 0;
-      document.getElementById('projetos-prio-media').textContent = p.prioridades?.Media || 0;
+      document.getElementById('projetos-prio-media').textContent = p.prioridades?.Media ||
+0;
       document.getElementById('projetos-prio-baixa').textContent = p.prioridades?.Baixa || 0;
 
       // 4. Renderizar Gráfico Combinado
       const ctx = document.getElementById('progressoTotalChart').getContext('2d');
-      
-      // Configurações globais do Chart.js para o tema hacker
-      Chart.defaults.color = '#00ff00'; // Cor do texto (labels, tooltips)
-      Chart.defaults.borderColor = 'rgba(159, 0, 255, 0.2)'; // Cor das linhas do grid
+
+      Chart.defaults.color = '#00ff00';
+
+      Chart.defaults.borderColor = 'rgba(159, 0, 255, 0.2)';
+
 
       new Chart(ctx, {
         type: 'doughnut',
@@ -105,14 +119,15 @@
           datasets: [{
             label: 'Progresso Total',
             data: [
-              (t.pendentes || 0) + (p.pendentes || 0),
+              (t.pendentes || 0) + (p.pendentes 
+|| 0),
               (t.concluidas || 0) + (p.concluidas || 0)
             ],
             backgroundColor: [
-              'rgba(255, 0, 0, 0.7)',  // Vermelho para Pendentes
-              'rgba(0, 255, 0, 0.7)'   // Verde para Concluídas
-            ],
-            borderColor: '#9f00ff', // Borda roxa
+              'rgba(255, 0, 0, 0.7)',
+              'rgba(0, 255, 0, 0.7)'
+   ],
+            borderColor: '#9f00ff',
             borderWidth: 2,
             hoverOffset: 4,
             hoverBorderColor: '#00ff00'
@@ -120,34 +135,52 @@
         },
         options: {
           responsive: true,
-          maintainAspectRatio: false,
-          cutout: '60%', // Cria o "buraco" do doughnut
+      maintainAspectRatio: false,
+          cutout: '60%',
           plugins: {
             legend: {
               position: 'top',
               labels: {
                 color: '#00ff00',
-                font: {
+           font: {
                   size: 14,
                   family: "'Courier New', Courier, monospace"
                 }
               }
             },
-            tooltip: {
+       tooltip: {
               backgroundColor: 'rgba(0, 0, 0, 0.8)',
               titleColor: '#9f00ff',
               bodyColor: '#00ff00',
               borderColor: '#9f00ff',
               borderWidth: 1
             }
-          }
+        }
         }
       });
 
-    } catch (error) {
+      // --- NOVO: 5. Popular Card "Tarefas por Projeto" ---
+      const listaProjetosElement = document.getElementById('tarefas-por-projeto-lista');
+      if (tpp && tpp.length > 0) {
+        listaProjetosElement.innerHTML = ''; // Limpa o "Calculando..."
+        
+        tpp.forEach(item => {
+          const p = document.createElement('p');
+          // Define a cor baseada no nome do projeto
+          const cor = item.projetoNome === 'Sem Projeto' ? '#ff0000' : '#00ffff';
+          
+          p.innerHTML = `${item.projetoNome}: <span class="stat-value" style="color: ${cor};">${item.count}</span>`;
+          listaProjetosElement.appendChild(p);
+        });
+      } else {
+        listaProjetosElement.innerHTML = '<p class="console-text" style="color: #ffff00;">C:\\> Nenhuma tarefa pendente encontrada...</p>';
+      }
+      // -------------------------------------------------
+
+} catch (error) {
       console.error('Erro ao carregar dashboard:', error);
       statusElement.textContent = `C:\\> ERRO_AO_CARREGAR_DADOS: ${error.message}`;
-      statusElement.style.color = '#ff0000'; // Vermelho para erro
+statusElement.style.color = '#ff0000'; 
     }
   });
 </script>
