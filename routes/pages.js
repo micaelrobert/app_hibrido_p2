@@ -1,30 +1,32 @@
 const express = require('express');
 const router = express.Router();
 const TarefaService = require('../services/TarefaService');
-const ProjetoService = require('../services/ProjetoService'); // Importa o novo serviço
+const ProjetoService = require('../services/ProjetoService');
 
 // Rota principal (Home)
 router.get('/', (req, res) => {
   res.render('index', { titulo: 'Página Inicial' });
 });
 
-// Rota /tarefas (agora carrega os dados do serviço)
+// Rota /tarefas (carrega os dados do serviço)
 router.get('/tarefas', async (req, res) => {
   try {
     const tarefas = await TarefaService.listar();
     res.render('tarefas', { titulo: 'Lista de Tarefas', tarefas: tarefas || [] });
   } catch (error) {
-    res.status(500).render('404', { titulo: 'Erro', mensagem: error.message });
+    console.error('Erro ao carregar tarefas:', error);
+    res.status(500).render('404', { titulo: 'Erro', mensagem: 'Erro ao carregar tarefas.' });
   }
 });
 
-// --- NOVA ROTA /projetos (conforme PDF) ---
+// Rota /projetos
 router.get('/projetos', async (req, res) => {
   try {
     const projetos = await ProjetoService.listar();
     res.render('projetos', { titulo: 'Projetos', projetos: projetos || [] });
   } catch (error) {
-    res.status(500).render('404', { titulo: 'Erro', mensagem: error.message });
+    console.error('Erro ao carregar projetos:', error);
+    res.status(500).render('404', { titulo: 'Erro', mensagem: 'Erro ao carregar projetos.' });
   }
 });
 

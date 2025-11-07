@@ -1,88 +1,111 @@
+/**
+ * AULA 8 - Service de Projetos
+ *
+ * Responsável pela lógica de negócios e interação
+ * com o banco de dados para a entidade "Projeto".
+ */
+
+// Importa o modelo de Projeto
 const Projeto = require('../models/Projeto');
 
 /**
- * Camada de serviço para operações CRUD de Projetos.
- * Abstrai a lógica de banco de dados das rotas.
+ * @function listar
+ * @description Retorna todos os projetos do banco de dados.
+ * @returns {Promise<Array>} Lista de projetos
  */
-class ProjetoService {
+const listar = async () => {
+  console.log('[ProjetoService] Listando projetos...');
+  return await Projeto.find().sort({ dataCriacao: -1 });
+};
 
-  /**
-   * Lista todos os projetos do banco de dados.
-   * @returns {Promise<Array>} Lista de projetos.
-   */
-  static async listar() {
-    try {
-      return await Projeto.find().sort({ createdAt: 'desc' });
-    } catch (error) {
-      throw new Error(`Erro ao listar projetos: ${error.message}`);
-    }
+/**
+ * @function criar
+ * @description Cria um novo projeto com base nos dados fornecidos.
+ * @param {object} dados Os dados do projeto (nome, descricao, etc.)
+ * @returns {Promise<object>} O novo projeto criado
+ */
+const criar = async (dados) => {
+  console.log('[ProjetoService] Criando projeto...', dados);
+
+  if (!dados.nome || dados.nome.trim() === '') {
+    throw new Error('Nome do projeto é obrigatório');
   }
 
-  /**
-   * Busca um projeto específico pelo ID.
-   * @param {string} id - O ID do projeto.
-   * @returns {Promise<Object|null>} O projeto encontrado ou null.
-   */
-  static async buscarPorId(id) {
-    try {
-      return await Projeto.findById(id);
-    } catch (error) {
-      throw new Error(`Erro ao buscar projeto por ID: ${error.message}`);
-    }
-  }
+  const dadosComPadroes = {
+    nome: dados.nome,
+    descricao: dados.descricao || '',
+    status: dados.status || 'ativo',
+    dataCriacao: new Date(),
+    dataAtualizacao: new Date()
+  };
 
-  /**
-   * Cria um novo projeto.
-   * @param {Object} data - Os dados do projeto (nome, descricao).
-   * @returns {Promise<Object>} O projeto criado.
-   */
-  static async criar(data) {
-    try {
-      const projeto = new Projeto(data);
-      return await projeto.save();
-    } catch (error) {
-      // Trata erros de validação do Mongoose
-      if (error.name === 'ValidationError') {
-        const mensagens = Object.values(error.errors).map(val => val.message).join(', ');
-        throw new Error(`Erro de validação: ${mensagens}`);
-      }
-      throw new Error(`Erro ao criar projeto: ${error.message}`);
-    }
-  }
+  const projeto = new Projeto(dadosComPadroes);
+  return await projeto.save();
+};
 
-  /**
-   * Atualiza um projeto existente.
-   * @param {string} id - O ID do projeto a ser atualizado.
-   * @param {Object} data - Os novos dados do projeto.
-   * @returns {Promise<Object|null>} O projeto atualizado.
-   */
-  static async atualizar(id, data) {
-    try {
-      return await Projeto.findByIdAndUpdate(id, data, {
-        new: true, // Retorna o documento modificado
-        runValidators: true // Executa validadores do schema na atualização
-      });
-    } catch (error) {
-      if (error.name === 'ValidationError') {
-        const mensagens = Object.values(error.errors).map(val => val.message).join(', ');
-        throw new Error(`Erro de validação: ${mensagens}`);
-      }
-      throw new Error(`Erro ao atualizar projeto: ${error.message}`);
-    }
+/**
+ * @function remover
+ * @description Remove um projeto pelo seu ID.
+ * @param {string} id O ID do projeto a ser removido
+ * @returns {Promise<void>}
+ */
+const remover = async (id) => {
+  console.log(`[ProjetoService] Removendo projeto ID: ${id}`);
+  
+  if (!id) {
+    throw new Error('ID do projeto é obrigatório');
   }
+  
+  return await Projeto.findByIdAndDelete(id);
+};
 
-  /**
-   * Remove um projeto pelo ID.
-   * @param {string} id - O ID do projeto a ser removido.
-   * @returns {Promise<Object|null>} O projeto que foi removido.
-   */
-  static async remover(id) {
-    try {
-      return await Projeto.findByIdAndDelete(id);
-    } catch (error) {
-      throw new Error(`Erro ao remover projeto: ${error.message}`);
-    }
+// (Não implementamos 'atualizar' ainda, mas podemos adicionar depois)
+// const atualizar = async (id, dados) => { ... };
+
+
+/**
+ * @function stats
+ * @description (NOVO) Retorna estatísticas de projetos para o Dashboard.
+ * @returns {Promise<object>} Objeto com estatísticas
+ */
+const stats = async () => {
+  console.log('[ProjetoService] Calculando estatísticas...');
+  
+  try {
+    const total = await Projeto.countDocuments();
+    const concluidos = await Projeto.countDocuments({ status: 'concluido' });
+    const ativos = await Projeto.countDocuments({ status: 'ativo' });
+    const pausados = await Projeto.countDocuments({ status: 'pausado' });
+
+    const pendentes = total - concluidos;
+    const percentualConclusao = total > 0 ? Math.round((concluidos / total) * 100) : 0;
+    
+    // (O dashboard.ejs não pedia, mas é bom ter)
+    const ultimosProjetos = await Projeto.find()
+      .sort({ dataAtualizacao: -1 })
+      .limit(5);
+
+    return {
+      total,
+      concluidos,
+      ativos,
+      pausados,
+      pendentes, // usado na legenda do gráfico
+      percentualConclusao,
+      ultimosProjetos
+    };
+
+  } catch (error) {
+    console.error('[Erro ao calcular stats de ProjetoService]', error);
+    throw new Error('Falha ao calcular estatísticas de projetos: ' + error.message);
   }
-}
+};
 
-module.exports = ProjetoService;
+// Exporta as funções
+module.exports = {
+  listar,
+  criar,
+  remover,
+  // atualizar, // (descomentar quando implementar)
+  stats // <-- Exporta a nova função de stats
+};

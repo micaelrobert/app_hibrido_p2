@@ -1,59 +1,66 @@
-<%- include('layout', { titulo: titulo }) %>
-<%- include('partials/header') %>
+
 
 <div class="container">
     <div class="page-header card">
         <div style="font-size: 5rem; margin-bottom: 25px;">📊</div>
-        <h2>Dashboard</h2>
+        <h2>Dashboard Geral</h2>
         <p>Acompanhe seu progresso e visualize suas estatísticas em tempo real</p>
     </div>
 
+    <!-- Loading State -->
     <div id="loadingState" style="text-align: center; padding: 60px;">
         <div class="loading-spinner"></div>
         <p style="margin-top: 20px; font-size: 1.1rem;">Carregando dados...</p>
     </div>
 
+    <!-- Dashboard Content -->
     <div id="dashboardContent" style="display: none;">
         
-        <div class="stats-grid">
-            <div class="card stat-card">
-                <div class="stat-icon">📋</div>
-                <div class="stat-number" id="totalTasks">0</div>
-                <div class="stat-label">Total de Tarefas</div>
-            </div>
+        <!-- GRID DE DUAS COLUNAS -->
+        <div class="dashboard-grid">
             
-            <div class="card stat-card">
-                <div class="stat-icon">✅</div>
-                <div class="stat-number" id="completedTasks">0</div>
-                <div class="stat-label">Concluídas</div>
-            </div>
-            
-            <div class="card stat-card">
-                <div class="stat-icon">⏳</div>
-                <div class="stat-number" id="pendingTasks">0</div>
-                <div class="stat-label">Pendentes</div>
-            </div>
-            
-            <div class="card stat-card">
-                <div class="stat-icon">📈</div>
-                <div class="stat-number" id="completionRate">0%</div>
-                <div class="stat-label">Taxa de Conclusão</div>
-            </div>
-        </div>
+            <!-- COLUNA DE TAREFAS -->
+            <section id="tarefas-section" class="card">
+                <h3 style="margin-bottom: 20px;">📝 Resumo de Tarefas</h3>
 
-        <div class="card">
-            <h3 style="margin-bottom: 20px;">🎯 Progresso Geral</h3>
-            <div class="progress-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <span style="font-weight: 600; font-size: 1.1rem;">Conclusão de Tarefas</span>
-                    <span id="progressText" style="font-weight: 700; font-size: 1.2rem;">0%</span>
-                </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar" id="progressBar" style="width: 0%;">
-                        <span id="progressLabel">0 de 0 concluídas</span>
+                <!-- Estatísticas Principais de Tarefas -->
+                <div class="stats-grid">
+                    <div class="card stat-card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-number" id="tarefas-total">0</div>
+                        <div class="stat-label">Total de Tarefas</div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-number" id="tarefas-concluidas">0</div>
+                        <div class="stat-label">Concluídas</div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-number" id="tarefas-pendentes">0</div>
+                        <div class="stat-label">Pendentes</div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-number" id="tarefas-taxa">0%</div>
+                        <div class="stat-label">Taxa de Conclusão</div>
                     </div>
                 </div>
-                
+
+                <!-- Barra de Progresso de Tarefas -->
+                <div class="progress-container" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-weight: 600; font-size: 1.1rem;">Progresso de Tarefas</span>
+                        <span id="tarefas-progresso-texto" style="font-weight: 700; font-size: 1.2rem;">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="tarefas-progresso-barra" style="width: 0%;">
+                            <span id="tarefas-progresso-label">0 de 0 concluídas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estatísticas por Prioridade -->
                 <h4 style="margin: 30px 0 15px 0;">📊 Distribuição por Prioridade</h4>
                 <div class="priority-stats">
                     <div class="list-item">
@@ -61,93 +68,141 @@
                             <span style="font-size: 1.5rem;">🔴</span>
                             <span>Alta</span>
                         </div>
-                        <div class="priority-count" id="highPriority">0</div>
+                        <div class="priority-count" id="tarefas-prioridade-alta">0</div>
                     </div>
                     <div class="list-item">
                         <div class="priority-label">
                             <span style="font-size: 1.5rem;">🟡</span>
                             <span>Média</span>
                         </div>
-                        <div class="priority-count" id="mediumPriority">0</div>
+                        <div class="priority-count" id="tarefas-prioridade-media">0</div>
                     </div>
                     <div class="list-item">
                         <div class="priority-label">
                             <span style="font-size: 1.5rem;">🟢</span>
                             <span>Baixa</span>
                         </div>
-                        <div class="priority-count" id="lowPriority">0</div>
+                        <div class="priority-count" id="tarefas-prioridade-baixa">0</div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="card">
-            <h3 style="margin-bottom: 20px;">📈 Visão Geral</h3>
-            <div class="chart-container">
-                <div class="donut-chart">
-                    <div class="donut" id="donutChart">
-                        <svg width="200" height="200" viewBox="0 0 200 200">
-                            <circle cx="100" cy="100" r="90" fill="none" stroke="#555" stroke-width="30"/>
-                            <circle 
-                                id="completedArc" 
-                                cx="100" 
-                                cy="100" 
-                                r="90" 
-                                fill="none" 
-                                stroke="#00ff00" 
-                                stroke-width="30"
-                                stroke-dasharray="565.48"
-                                stroke-dashoffset="565.48"
-                                transform="rotate(-90 100 100)"
-                                style="transition: stroke-dashoffset 1s ease;"
-                            />
-                        </svg>
-                        <div class="donut-center">
-                            <div class="donut-value" id="chartPercentage">0%</div>
-                            <div class="donut-label">Concluído</div>
-                        </div>
+                <!-- Últimas Tarefas -->
+                <h4 style="margin: 30px 0 15px 0;">🕐 Últimas Tarefas Modificadas</h4>
+                <div class="recent-tasks">
+                    <div id="tarefas-recentes-lista">
+                        <!-- Preenchido via JavaScript -->
                     </div>
-                    
-                    <div class="chart-legend">
-                        <div class="legend-item">
-                            <div class="legend-color" style="background: #00ff00;"></div>
-                            <div class="legend-text">
-                                <div class="legend-label">Tarefas Concluídas</div>
-                                <div class="legend-value" id="legendCompleted">0 tarefas</div>
-                            </div>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color" style="background: #ffff00;"></div>
-                            <div class="legend-text">
-                                <div class="legend-label">Tarefas Pendentes</div>
-                                <div class="legend-value" id="legendPending">0 tarefas</div>
-                            </div>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color" style="background: #00ffff;"></div>
-                            <div class="legend-text">
-                                <div class="legend-label">Total</div>
-                                <div class="legend-value" id="legendTotal">0 tarefas</div>
-                            </div>
+                </div>
+            </section>
+            
+            <!-- COLUNA DE PROJETOS -->
+            <section id="projetos-section" class="card">
+                <h3 style="margin-bottom: 20px;">🚀 Resumo de Projetos</h3>
+
+                <!-- Estatísticas Principais de Projetos -->
+                <div class="stats-grid">
+                    <div class="card stat-card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-number" id="projetos-total">0</div>
+                        <div class="stat-label">Total de Projetos</div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-number" id="projetos-concluidos">0</div>
+                        <div class="stat-label">Concluídos</div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon">▶️</div>
+                        <div class="stat-number" id="projetos-ativos">0</div>
+                        <div class="stat-label">Ativos</div>
+                    </div>
+                     <div class="card stat-card">
+                        <div class="stat-icon">⏸️</div>
+                        <div class="stat-number" id="projetos-pausados">0</div>
+                        <div class="stat-label">Pausados</div>
+                    </div>
+                </div>
+
+                <!-- Barra de Progresso de Projetos -->
+                <div class="progress-container" style="margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-weight: 600; font-size: 1.1rem;">Progresso de Projetos</span>
+                        <span id="projetos-progresso-texto" style="font-weight: 700; font-size: 1.2rem;">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="projetos-progresso-barra" style="width: 0%;">
+                            <span id="projetos-progresso-label">0 de 0 concluídos</span>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="card">
-            <h3 style="margin-bottom: 20px;">🕐 Últimas 5 Tarefas</h3>
-            <div class="recent-tasks">
-                <div id="recentTasksList">
+                 <!-- Gráfico de Pizza (Donut Chart) -->
+                <h4 style="margin: 30px 0 15px 0;">📈 Visão Geral (Projetos)</h4>
+                <div class="chart-container">
+                    <div class="donut-chart">
+                        <div class="donut" id="projetos-donutChart">
+                            <svg width="200" height="200" viewBox="0 0 200 200">
+                                <circle cx="100" cy="100" r="90" fill="none" stroke="#555" stroke-width="30"/>
+                                <circle 
+                                    id="projetos-completedArc" 
+                                    cx="100" 
+                                    cy="100" 
+                                    r="90" 
+                                    fill="none" 
+                                    stroke="var(--cor-sucesso, #00ff00)" 
+                                    stroke-width="30"
+                                    stroke-dasharray="565.48"
+                                    stroke-dashoffset="565.48"
+                                    transform="rotate(-90 100 100)"
+                                    style="transition: stroke-dashoffset 1s ease;"
+                                />
+                            </svg>
+                            <div class="donut-center">
+                                <div class="donut-value" id="projetos-chartPercentage">0%</div>
+                                <div class="donut-label">Concluído</div>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: var(--cor-sucesso, #00ff00);"></div>
+                                <div class="legend-text">
+                                    <div class="legend-label">Projetos Concluídos</div>
+                                    <div class="legend-value" id="projetos-legendCompleted">0</div>
+                                </div>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: var(--cor-aviso, #ffff00);"></div>
+                                <div class="legend-text">
+                                    <div class="legend-label">Projetos Pendentes</div>
+                                    <div class="legend-value" id="projetos-legendPending">0</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-            </div>
-        </div>
+                </div>
 
-        <div class="card" style="text-align: center;">
+                <!-- Últimos Projetos -->
+                <h4 style="margin: 30px 0 15px 0;">🕐 Últimos Projetos Modificados</h4>
+                <div class="recent-tasks">
+                    <div id="projetos-recentes-lista">
+                        <!-- Preenchido via JavaScript -->
+                    </div>
+                </div>
+
+            </section>
+        </div> <!-- Fim .dashboard-grid -->
+
+
+        <!-- Ações Rápidas -->
+        <div class="card" style="text-align: center; margin-top: 2rem;">
             <h3 style="margin-bottom: 20px;">⚡ Ações Rápidas</h3>
             <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
                 <a href="/tarefas" class="btn">
                     📝 Gerenciar Tarefas
+                </a>
+                 <a href="/projetos" class="btn">
+                    🚀 Gerenciar Projetos
                 </a>
                 <button onclick="location.reload()" class="btn">
                     🔄 Atualizar Dashboard
@@ -162,34 +217,44 @@
 // ============================================================================
 // INICIALIZAÇÃO
 // ============================================================================
-
 document.addEventListener('DOMContentLoaded', function() {
     loadDashboardData();
 });
 
 // ============================================================================
-// CARREGAR DADOS DO DASHBOARD
+// CARREGAR DADOS GERAIS
 // ============================================================================
-
 async function loadDashboardData() {
     try {
-        const response = await fetch('/api/tarefas/stats');
+        // 1. Chamar o novo endpoint unificado
+        const response = await fetch('/api/dashboard-stats');
         const result = await response.json();
+        
         if (result.success) {
-            updateDashboard(result.data);
+            // 2. Distribuir os dados para as funções de renderização
+            updateTarefasStats(result.data.tarefas);
+            updateProjetosStats(result.data.projetos);
+            
             // Mostrar conteúdo e esconder loading
             setTimeout(() => {
                 document.getElementById('loadingState').style.display = 'none';
                 document.getElementById('dashboardContent').style.display = 'block';
             }, 500);
+        } else {
+            throw new Error(result.error || 'Falha ao buscar dados');
         }
     } catch (error) {
         console.error('Erro ao carregar dashboard:', error);
+        let errorMsg = error.message;
+        if (error.name === 'SyntaxError') {
+            errorMsg = "Não foi possível encontrar a API. Verifique seu 'index.js' e 'routes/api.js'.";
+        }
+        
         document.getElementById('loadingState').innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">⚠️</div>
                 <h3>Erro ao carregar dashboard</h3>
-                <p>Tente recarregar a página</p>
+                <p>${errorMsg}</p>
                 <button onclick="location.reload()" class="btn" style="margin-top: 20px;">
                     🔄 Recarregar
                 </button>
@@ -199,113 +264,101 @@ async function loadDashboardData() {
 }
 
 // ============================================================================
-// ATUALIZAR DASHBOARD
+// ATUALIZAR DADOS DE TAREFAS
 // ============================================================================
+function updateTarefasStats(data) {
+    if (!data) return;
 
-function updateDashboard(data) {
     // Estatísticas principais
-    document.getElementById('totalTasks').textContent = data.total;
-    document.getElementById('completedTasks').textContent = data.concluidas;
-    document.getElementById('pendingTasks').textContent = data.pendentes;
-    document.getElementById('completionRate').textContent = data.percentualConclusao + '%';
+    document.getElementById('tarefas-total').textContent = data.total;
+    document.getElementById('tarefas-concluidas').textContent = data.concluidas;
+    document.getElementById('tarefas-pendentes').textContent = data.pendentes;
+    document.getElementById('tarefas-taxa').textContent = data.percentualConclusao + '%';
 
     // Barra de progresso
-    document.getElementById('progressText').textContent = data.percentualConclusao + '%';
-    const progressBar = document.getElementById('progressBar');
+    document.getElementById('tarefas-progresso-texto').textContent = data.percentualConclusao + '%';
+    const progressBar = document.getElementById('tarefas-progresso-barra');
     progressBar.style.width = data.percentualConclusao + '%';
     progressBar.textContent = `${data.concluidas} de ${data.total} concluídas`;
-    // Mudar a cor da barra de progresso
-    if (data.percentualConclusao > 75) {
-        progressBar.style.background = 'var(--cor-sucesso, #00ff00)';
-    } else if (data.percentualConclusao > 40) {
-        progressBar.style.background = 'var(--cor-aviso, #ffff00)';
-    } else {
-        progressBar.style.background = 'var(--cor-perigo, #ff0000)';
-    }
-
+    
+    if (data.percentualConclusao > 75) progressBar.style.background = 'var(--cor-sucesso, #00ff00)';
+    else if (data.percentualConclusao > 40) progressBar.style.background = 'var(--cor-aviso, #ffff00)';
+    else progressBar.style.background = 'var(--cor-perigo, #ff0000)';
 
     // Prioridades
-    document.getElementById('highPriority').textContent = data.porPrioridade.alta;
-    document.getElementById('mediumPriority').textContent = data.porPrioridade.media;
-    document.getElementById('lowPriority').textContent = data.porPrioridade.baixa;
-
-    // Gráfico donut
-    updateDonutChart(data.percentualConclusao);
-    document.getElementById('chartPercentage').textContent = data.percentualConclusao + '%';
-
-    // Legenda
-    document.getElementById('legendCompleted').textContent = `${data.concluidas} tarefas`;
-    document.getElementById('legendPending').textContent = `${data.pendentes} tarefas`;
-    document.getElementById('legendTotal').textContent = `${data.total} tarefas`;
+    document.getElementById('tarefas-prioridade-alta').textContent = data.porPrioridade.alta;
+    document.getElementById('tarefas-prioridade-media').textContent = data.porPrioridade.media;
+    document.getElementById('tarefas-prioridade-baixa').textContent = data.porPrioridade.baixa;
 
     // Últimas tarefas
     renderRecentTasks(data.ultimasTarefas);
 }
 
 // ============================================================================
-// ATUALIZAR GRÁFICO DONUT
+// ATUALIZAR DADOS DE PROJETOS
 // ============================================================================
+function updateProjetosStats(data) {
+    if (!data) return;
 
-function updateDonutChart(percentage) {
-    const circle = document.getElementById('completedArc');
-    const circumference = 565.48; // 2 * π * r (r = 90)
-    const offset = circumference - (percentage / 100 * circumference);
+    // Estatísticas principais
+    document.getElementById('projetos-total').textContent = data.total;
+    document.getElementById('projetos-concluidos').textContent = data.concluidos;
+    document.getElementById('projetos-ativos').textContent = data.ativos;
+    document.getElementById('projetos-pausados').textContent = data.pausados;
+
+    // Barra de progresso
+    document.getElementById('projetos-progresso-texto').textContent = data.percentualConclusao + '%';
+    const progressBar = document.getElementById('projetos-progresso-barra');
+    progressBar.style.width = data.percentualConclusao + '%';
+    progressBar.textContent = `${data.concluidos} de ${data.total} concluídos`;
+
+    if (data.percentualConclusao > 75) progressBar.style.background = 'var(--cor-sucesso, #00ff00)';
+    else if (data.percentualConclusao > 40) progressBar.style.background = 'var(--cor-aviso, #ffff00)';
+    else progressBar.style.background = 'var(--cor-perigo, #ff0000)';
     
-    // Hack para forçar a animação
-    setTimeout(() => {
-        circle.style.strokeDashoffset = offset;
-    }, 100); 
+    // Gráfico donut
+    updateDonutChart('projetos-completedArc', data.percentualConclusao);
+    document.getElementById('projetos-chartPercentage').textContent = data.percentualConclusao + '%';
+
+    // Legenda
+    document.getElementById('projetos-legendCompleted').textContent = `${data.concluidos} concluídos`;
+    document.getElementById('projetos-legendPending').textContent = `${data.pendentes} pendentes`;
 }
 
 // ============================================================================
 // RENDERIZAR ÚLTIMAS TAREFAS
 // ============================================================================
-
 function renderRecentTasks(tasks) {
-    const container = document.getElementById('recentTasksList');
-    if (tasks.length === 0) {
+    const container = document.getElementById('tarefas-recentes-lista');
+    if (!tasks || tasks.length === 0) {
         container.innerHTML = `
-            <div class="empty-state">
+            <div class="empty-state" style="padding: 1rem 0;">
                 <div class="empty-state-icon">📝</div>
                 <h3>Nenhuma tarefa ainda</h3>
-                <p>Comece criando sua primeira tarefa!</p>
-                <a href="/tarefas" class="btn" style="margin-top: 20px;">
-                    ➕ Criar Tarefa
-                </a>
             </div>
         `;
         return;
     }
     
     const tasksHtml = tasks.map(task => {
-        const priorityEmoji = {
-            alta: '🔴',
-            media: '🟡',
-            baixa: '🟢'
-        };
-        
+        const priorityEmoji = { alta: '🔴', media: '🟡', baixa: '🟢' };
         const dataCriacao = new Date(task.dataCriacao).toLocaleDateString('pt-BR', {
-            day: '2-digit',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit'
+            day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
         });
+        const isConcluida = task.status === 'concluida';
         
-        // Usando classes .list-item e adicionando classes de prioridade
         return `
             <div class="list-item priority-${task.prioridade}">
-                
                 <div class="task-title-row">
                     <div class="task-title-text">
-                        ${task.concluida ? '✅' : '⏳'} ${escapeHtml(task.titulo)}
+                        ${isConcluida ? '✅' : '⏳'} ${escapeHtml(task.titulo)}
                     </div>
-                    <span class="task-status-badge ${task.concluida ? 'completed' : 'pending'}">
-                        ${task.concluida ? 'Concluída' : 'Pendente'}
+                    <span class="task-status-badge ${isConcluida ? 'completed' : 'pending'}">
+                        ${isConcluida ? 'Concluída' : 'Pendente'}
                     </span>
                 </div>
-                ${task.descricao ? `<div class="task-description">${escapeHtml(task.descricao)}</div>` : ''}
                 <div class="task-meta-info">
-                    <span>${priorityEmoji[task.prioridade]} ${task.prioridade.charAt(0).toUpperCase() + task.prioridade.slice(1)}</span>
+                    <span>${priorityEmoji[task.prioridade] || '⚪'} ${task.prioridade ? (task.prioridade.charAt(0).toUpperCase() + task.prioridade.slice(1)) : 'N/A'}</span>
                     <span>📅 ${dataCriacao}</span>
                 </div>
             </div>
@@ -318,6 +371,16 @@ function renderRecentTasks(tasks) {
 // ============================================================================
 // FUNÇÕES AUXILIARES
 // ============================================================================
+function updateDonutChart(elementId, percentage) {
+    const circle = document.getElementById(elementId);
+    if (!circle) return;
+    const circumference = 565.48; // 2 * π * r (r = 90)
+    const offset = circumference - (percentage / 100 * circumference);
+    
+    setTimeout(() => {
+        circle.style.strokeDashoffset = offset;
+    }, 100); 
+}
 
 function escapeHtml(text) {
     if (!text) return '';
