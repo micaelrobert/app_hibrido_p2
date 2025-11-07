@@ -1,131 +1,146 @@
 /**
- * AULA 5 - Service de Tarefas
+ * TarefaService
  *
- * Este arquivo é responsável por toda a lógica de negócios
- * (regras, validações, consultas ao DB) das Tarefas.
- * O Roteador (api-mongodb.js) e o Controller (aqui, simplificado)
- * apenas recebem as requisições e chamam os métodos deste serviço.
+ * Camada de serviço para gerenciar a lógica de negócios das Tarefas.
+ * Interage com o Model 'Tarefa' do Mongoose.
  */
-
-// Importa o modelo de Tarefa
 const Tarefa = require('../models/Tarefa');
 
 /**
- * @function listar
- * @description Retorna todas as tarefas do banco de dados.
- * @returns {Promise<Array>} Lista de tarefas
+ * Lista todas as tarefas do banco de dados.
+ * @returns {Promise<Array>} Uma promessa que resolve para um array de tarefas.
  */
 const listar = async () => {
-  console.log('[TarefaService] Listando tarefas...');
-  // .sort({ dataCriacao: -1 }) -> ordena pelas mais recentes
-  return await Tarefa.find().sort({ dataCriacao: -1 });
+  // Ordena por 'concluido' (false primeiro), depois por 'prioridade' (Alta, Media, Baixa) e depois 'dataCriacao' (mais recente)
+  const prioridadeOrder = { Alta: 1, Media: 2, Baixa: 3 };
+  
+  const tarefas = await Tarefa.find().sort({ concluido: 1, dataCriacao: -1 });
+
+  // Ordenação personalizada para prioridade
+  tarefas.sort((a, b) => {
+    if (a.concluido !== b.concluido) {
+      return a.concluido ? 1 : -1;
+    }
+    return (prioridadeOrder[a.prioridade] || 99) - (prioridadeOrder[b.prioridade] || 99);
+  });
+
+  return tarefas;
 };
 
 /**
- * @function criar
- * @description Cria uma nova tarefa com base nos dados fornecidos.
- * @param {object} dados Os dados da tarefa (titulo, descricao, status, etc.)
- * @returns {Promise<object>} A nova tarefa criada
+ * Cria uma nova tarefa no banco de dados.
+ * @param {object} dadosTarefa - O objeto contendo os dados da nova tarefa (nome, prioridade).
+ * @returns {Promise<object>} Uma promessa que resolve para o documento da nova tarefa criada.
  */
-const criar = async (dados) => {
-  console.log('[TarefaService] Criando tarefa...', dados);
-
-  // Validação simples (exemplo)
-  if (!dados.titulo || dados.titulo.trim() === '') {
-    throw new Error('Título é obrigatório');
+const criar = async (dadosTarefa) => {
+  // Pega apenas os campos esperados para evitar sobreposição
+  const { nome, prioridade } = dadosTarefa;
+  
+  if (!nome || !prioridade) {
+    throw new Error('Nome e prioridade são obrigatórios.');
   }
 
-  // Define valores padrão se não forem fornecidos
-  const dadosComPadroes = {
-    titulo: dados.titulo,
-    descricao: dados.descricao || '',
-    status: dados.status || 'pendente',
-    prioridade: dados.prioridade || 'media',
-    dataCriacao: new Date(),
-    dataAtualizacao: new Date()
-  };
-
-  const tarefa = new Tarefa(dadosComPadroes);
-  return await tarefa.save();
+  const novaTarefa = new Tarefa({
+    nome,
+    prioridade,
+    concluido: false, // Garante que começa como não concluída
+  });
+  
+  await novaTarefa.save();
+  return novaTarefa;
 };
 
 /**
- * @function remover
- * @description Remove uma tarefa pelo seu ID.
- * @param {string} id O ID da tarefa a ser removida
+ * Remove uma tarefa do banco de dados pelo ID.
+ * @param {string} id - O ID da tarefa a ser removida.
  * @returns {Promise<void>}
  */
 const remover = async (id) => {
-  console.log(`[TarefaService] Removendo tarefa ID: ${id}`);
-  
-  if (!id) {
-    throw new Error('ID da tarefa é obrigatório');
+  const resultado = await Tarefa.findByIdAndDelete(id);
+  if (!resultado) {
+    throw new Error('Tarefa não encontrada para remoção.');
   }
-  
-  return await Tarefa.findByIdAndDelete(id);
 };
 
 /**
- * @function stats
- * @description (NOVO) Retorna estatísticas de tarefas para o Dashboard.
- * @returns {Promise<object>} Objeto com estatísticas
+ * Atualiza uma tarefa existente (concluído ou prioridade).
+ * @param {string} id - O ID da tarefa a ser atualizada.
+ * @param {object} dados - Os dados para atualizar (ex: { concluido: true } ou { prioridade: 'Alta' })
+ * @returns {Promise<object>} A tarefa atualizada.
+ */
+const atualizar = async (id, dados) => {
+  const camposPermitidos = {};
+  if (dados.concluido != null) {
+    camposPermitidos.concluido = dados.concluido;
+  }
+  if (dados.prioridade != null) {
+    camposPermitidos.prioridade = dados.prioridade;
+  }
+
+  if (Object.keys(camposPermitidos).length === 0) {
+    throw new Error('Nenhum dado válido para atualização fornecido.');
+  }
+
+  const tarefa = await Tarefa.findByIdAndUpdate(
+    id,
+    { $set: camposPermitidos },
+    { new: true, runValidators: true }
+  );
+
+  if (!tarefa) {
+    throw new Error('Tarefa não encontrada para atualização.');
+  }
+  return tarefa;
+};
+
+
+/**
+ * Busca estatísticas de tarefas para o Dashboard.
+ * @returns {Promise<object>} Um objeto com estatísticas (total, concluidas, pendentes, prioridades).
  */
 const stats = async () => {
-  console.log('[TarefaService] Calculando estatísticas...');
-  
   try {
     const total = await Tarefa.countDocuments();
-    const concluidas = await Tarefa.countDocuments({ status: 'concluida' });
+    const concluidas = await Tarefa.countDocuments({ concluido: true });
     const pendentes = total - concluidas;
-    const percentualConclusao = total > 0 ? Math.round((concluidas / total) * 100) : 0;
 
-    // Agregação para contar por prioridade
-    const prioridadeCounts = await Tarefa.aggregate([
-      {
-        $group: {
-          _id: '$prioridade',
-          count: { $sum: 1 }
-        }
-      }
+    // Conta as prioridades APENAS das tarefas pendentes
+    const prioridadesAgrupadas = await Tarefa.aggregate([
+      { $match: { concluido: false } },
+      { $group: { _id: '$prioridade', count: { $sum: 1 } } },
+      { $project: { _id: 0, prioridade: '$_id', count: 1 } }
     ]);
 
-    const porPrioridade = {
-      alta: 0,
-      media: 0,
-      baixa: 0
+    // Mapeia os resultados para um objeto limpo, garantindo que todas as chaves existam
+    const prioridades = {
+      'Alta': 0,
+      'Media': 0,
+      'Baixa': 0
     };
 
-    prioridadeCounts.forEach(item => {
-      if (item._id && porPrioridade.hasOwnProperty(item._id)) {
-        porPrioridade[item._id] = item.count;
+    prioridadesAgrupadas.forEach(p => {
+      if (prioridades.hasOwnProperty(p.prioridade)) {
+        prioridades[p.prioridade] = p.count;
       }
     });
-    
-    // Buscar as 5 tarefas atualizadas mais recentemente
-    const ultimasTarefas = await Tarefa.find()
-      .sort({ dataAtualizacao: -1 }) // Ordena pela data de atualização
-      .limit(5);
 
     return {
       total,
       concluidas,
       pendentes,
-      percentualConclusao,
-      porPrioridade,
-      ultimasTarefas
+      prioridades
     };
-
   } catch (error) {
-    console.error('[Erro ao calcular stats de TarefaService]', error);
+    console.error('[Erro TarefaService.stats]', error.message);
     throw new Error('Falha ao calcular estatísticas de tarefas: ' + error.message);
   }
 };
 
-
-// Exporta as funções para serem usadas pelos roteadores
+// Exporta as funções do serviço
 module.exports = {
   listar,
   criar,
   remover,
-  stats // <-- Exporta a nova função de stats
+  atualizar,
+  stats,
 };

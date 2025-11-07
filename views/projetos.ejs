@@ -1,101 +1,205 @@
-<h2>Meus Projetos</h2>
-<p>Gerencie seus projetos aqui.</p>
+<%- contentFor('body') %>
 
-<form id="form-criar-projeto">
-  <div class="form-group">
-    <label for="nome">Nome do Projeto:</label>
-    <input type="text" id="nome" name="nome" required placeholder="Ex: Refatorar API...">
+<div class="container-lista">
+  <div class="terminal-header">
+    <div class="terminal-title">system@projetos:~</div>
+    <div class="terminal-controls">
+      <div class="control-btn minimize"></div>
+      <div class="control-btn maximize"></div>
+      <div class="control-btn close"></div>
+    </div>
   </div>
-  <div class="form-group">
-    <label for="descricao">Descrição (Opcional):</label>
-    <textarea id="descricao" name="descricao" placeholder="Ex: Aplicar novo tema..."></textarea>
-  </div>
-  <button type="submit" class="btn">Criar Projeto</button>
-</form>
 
-<h2 style="margin-top: 2rem;">Projetos Atuais</h2>
+  <div class="terminal-body">
+    <h1 class="glitch" data-text="[ Lista de Projetos ]">[ Lista de Projetos ]</h1>
+    <p class="console-text">C:\\> Inicializando_diretrizes_de_projetos...</p>
 
-<div id="lista-projetos">
-  <% if (projetos.length > 0) { %>
-    <% projetos.forEach(projeto => { %>
-      <div class="list-item" id="projeto-<%= projeto._id %>">
-        <div class="item-content">
-          <h3><%= projeto.nome %></h3>
-          <p><%= projeto.descricao || 'Sem descrição' %> (Status: <%= projeto.status %>)</p>
-        </div>
-        <div class="item-actions">
-          <button class="btn btn-delete" onclick="removerProjeto('<%= projeto._id %>')">Remover</button>
-        </div>
+    <form id="form-novo-projeto" class="form-hacker">
+      <div class="form-group">
+        <label for="nome-projeto" class="console-label">>> Novo Projeto:</label>
+        <input
+          type="text"
+          id="nome-projeto"
+          name="nome"
+          class="form-input"
+          placeholder="Descrever projeto..."
+          required
+        />
       </div>
-    <% }) %>
-  <% } else { %>
-    <p id="sem-projetos">Nenhum projeto encontrado.</p>
-  <% } %>
+      <div class="form-group">
+        <label for="prioridade-projeto" class="console-label">>> Prioridade:</label>
+        <select id="prioridade-projeto" name="prioridade" class="form-input" required>
+          <option value="Baixa">Baixa</option>
+          <option value="Media" selected>Média</option>
+          <option value="Alta">Alta</option>
+        </select>
+      </div>
+      <button type="submit" class="btn-hacker">[ Adicionar Projeto ]</button>
+    </form>
+
+    <ul id="lista-projetos" class="lista-hacker">
+      <% if (projetos && projetos.length > 0) { %>
+        <% projetos.forEach(projeto => { %>
+          <li
+            class="item-lista prioridade-<%= projeto.prioridade.toLowerCase() %> <%= projeto.concluido ? 'concluido' : '' %>"
+            data-id="<%= projeto._id %>"
+            data-concluido="<%= projeto.concluido %>"
+          >
+            <span class="item-texto">
+              <strong class="item-nome">[<%= projeto.nome %>]</strong>
+              <span class="item-detalhe">- Prioridade: <%= projeto.prioridade %></span>
+              <span class="item-data">(Criado em: <%= new Date(projeto.dataCriacao).toLocaleDateString('pt-BR') %>)</span>
+            </span>
+            <div class="botoes-item">
+              <button class="btn-acao btn-concluir">
+                <%= projeto.concluido ? '[ Reabrir ]' : '[ Concluir ]' %>
+              </button>
+              <button class="btn-acao btn-apagar">[ Apagar ]</button>
+            </div>
+          </li>
+        <% }) %>
+      <% } else { %>
+        <li id="sem-projetos" class="console-text">>> Nenhum projeto encontrado. Aguardando diretrizes...</li>
+      <% } %>
+    </ul>
+  </div>
 </div>
 
 <script>
-  // Script para lidar com a criação de projetos via API
-  document.getElementById('form-criar-projeto').addEventListener('submit', async (e) => {
+  // Adicionar Projeto
+  document.getElementById('form-novo-projeto').addEventListener('submit', async function (e) {
     e.preventDefault();
-    
-    const nome = document.getElementById('nome').value;
-    const descricao = document.getElementById('descricao').value;
+
+    const nome = this.elements.nome.value;
+    const prioridade = this.elements.prioridade.value;
 
     try {
-      const response = await fetch('/api/projetos', {
+      const response = await fetch('/api/projetos', { // API de Projetos
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ nome, descricao }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, prioridade }),
       });
 
       if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || 'Falha ao criar projeto');
+        throw new Error('Falha ao criar projeto.');
       }
 
-      // Recarrega a página para mostrar o novo projeto
-      location.reload();
+      const novoProjeto = await response.json();
+      adicionarProjetoNaLista(novoProjeto);
+
+      // Limpar formulário
+      this.reset();
+      this.elements.nome.focus();
 
     } catch (error) {
-      console.error('Erro:', error);
-      alert(error.message);
+      console.error('Erro ao adicionar projeto:', error);
+      alert('Erro: ' + error.message);
     }
   });
 
-  // Script para remover projeto via API
-  async function removerProjeto(id) {
-    if (!confirm('Tem certeza que deseja remover este projeto?')) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/projetos/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || 'Falha ao remover projeto');
-      }
-
-      // Remove o item da UI
-      const itemElement = document.getElementById(`projeto-${id}`);
-      if (itemElement) {
-        itemElement.remove();
-      }
+  // Adiciona listeners aos botões de Concluir e Apagar
+  function adicionarListenersAosBotoes(itemLista) {
+    // Botão Concluir/Reabrir
+    itemLista.querySelector('.btn-concluir').addEventListener('click', async (e) => {
+      const li = e.target.closest('li');
+      const id = li.dataset.id;
+      const isConcluido = li.dataset.concluido === 'true';
       
-      // Verifica se a lista está vazia
-      const lista = document.getElementById('lista-projetos');
-      if (lista.getElementsByClassName('list-item').length === 0) {
-        const msg = document.getElementById('sem-projetos');
-        if (msg) msg.style.display = 'block';
+      try {
+        const response = await fetch(`/api/projetos/${id}`, { // API de Projetos
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ concluido: !isConcluido }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Falha ao atualizar projeto.');
+        }
+
+        const { data } = await response.json();
+        
+        // Atualiza o estado no DOM
+        li.dataset.concluido = data.concluido;
+        li.classList.toggle('concluido', data.concluido);
+        e.target.textContent = data.concluido ? '[ Reabrir ]' : '[ Concluir ]';
+
+      } catch (error) {
+        console.error('Erro ao concluir projeto:', error);
+        alert('Erro: ' + error.message);
+      }
+    });
+
+    // Botão Apagar
+    itemLista.querySelector('.btn-apagar').addEventListener('click', async (e) => {
+      const li = e.target.closest('li');
+      const id = li.dataset.id;
+
+      if (!confirm(`C:\\> Tem certeza que deseja apagar o projeto "${li.querySelector('.item-nome').textContent}"? Esta ação é irreversível.`)) {
+        return;
       }
 
-    } catch (error) {
-      console.error('Erro:', error);
-      alert(error.message);
+      try {
+        const response = await fetch(`/api/projetos/${id}`, { // API de Projetos
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          throw new Error('Falha ao apagar projeto.');
+        }
+
+        // Remove o item da lista com animação
+        li.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        li.style.opacity = '0';
+        li.style.transform = 'translateX(-100%)';
+        
+        setTimeout(() => {
+          li.remove();
+          // Verifica se a lista ficou vazia
+          const lista = document.getElementById('lista-projetos');
+          if (lista.children.length === 0) {
+            lista.innerHTML = '<li id="sem-projetos" class="console-text">>> Nenhum projeto encontrado. Aguardando diretrizes...</li>';
+          }
+        }, 500);
+
+      } catch (error) {
+        console.error('Erro ao apagar projeto:', error);
+        alert('Erro: ' + error.message);
+      }
+    });
+  }
+
+  // Adiciona listeners para os itens já carregados na página
+  document.querySelectorAll('#lista-projetos .item-lista').forEach(adicionarListenersAosBotoes);
+
+  // Função para adicionar novo projeto na lista (DOM)
+  function adicionarProjetoNaLista(projeto) {
+    // Remove a mensagem "sem projetos" se existir
+    const semProjetos = document.getElementById('sem-projetos');
+    if (semProjetos) {
+      semProjetos.remove();
     }
+
+    const li = document.createElement('li');
+    li.className = `item-lista prioridade-${projeto.prioridade.toLowerCase()}`;
+    li.dataset.id = projeto._id;
+    li.dataset.concluido = 'false';
+
+    li.innerHTML = `
+      <span class="item-texto">
+        <strong class="item-nome">[${projeto.nome}]</strong>
+        <span class="item-detalhe">- Prioridade: ${projeto.prioridade}</span>
+        <span class="item-data">(Criado em: ${new Date(projeto.dataCriacao).toLocaleDateString('pt-BR')})</span>
+      </span>
+      <div class="botoes-item">
+        <button class="btn-acao btn-concluir">[ Concluir ]</button>
+        <button class="btn-acao btn-apagar">[ Apagar ]</button>
+      </div>
+    `;
+
+    // Adiciona no início da lista
+    document.getElementById('lista-projetos').prepend(li);
+    
+    // Adiciona os listeners para os botões do novo projeto
+    adicionarListenersAosBotoes(li);
   }
 </script>

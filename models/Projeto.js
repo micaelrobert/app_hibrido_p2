@@ -1,25 +1,41 @@
+/**
+ * Model Projeto (Mongoose)
+ *
+ * Define o Schema e o Model para os Projetos no MongoDB.
+ */
 const mongoose = require('mongoose');
 
-// Esquema simples para Projetos, conforme sugerido no PDF.
-const ProjetoSchema = new mongoose.Schema({
-  nome: {
-    type: String,
-    required: [true, 'O campo "nome" é obrigatório.'],
-    trim: true
+// Define o Schema do Projeto
+const projetoSchema = new mongoose.Schema(
+  {
+    nome: {
+      type: String,
+      required: [true, 'O nome do projeto é obrigatório.'],
+      trim: true,
+      minlength: [3, 'O nome do projeto deve ter pelo menos 3 caracteres.'],
+    },
+    prioridade: {
+      type: String,
+      required: true,
+      enum: ['Baixa', 'Media', 'Alta'],
+      default: 'Media',
+    },
+    concluido: {
+      type: Boolean,
+      default: false,
+    },
+    // O campo 'dataCriacao' agora é gerenciado pelo 'timestamps'
   },
-  descricao: {
-    type: String,
-    required: false,
-    trim: true,
-    default: ''
-  },
-  status: {
-    type: String,
-    default: 'Pendente',
-    enum: ['Pendente', 'Em Andamento', 'Concluído']
+  {
+    // Adiciona os campos 'createdAt' e 'updatedAt' automaticamente
+    timestamps: {
+      createdAt: 'dataCriacao', // Mapeia 'createdAt' para 'dataCriacao'
+      updatedAt: 'dataAtualizacao',
+    },
+    versionKey: false, // Desativa o campo '__v'
   }
-}, {
-  timestamps: true // Adiciona createdAt e updatedAt
-});
+);
 
-module.exports = mongoose.model('Projeto', ProjetoSchema);
+// Cria e exporta o Model 'Projeto'
+// O Mongoose usará o nome 'Projeto' para criar a coleção 'projetos'
+module.exports = mongoose.model('Projeto', projetoSchema);

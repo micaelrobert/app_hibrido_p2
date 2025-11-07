@@ -1,391 +1,153 @@
+<%- contentFor('body') %>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
 
-<div class="container">
-    <div class="page-header card">
-        <div style="font-size: 5rem; margin-bottom: 25px;">📊</div>
-        <h2>Dashboard Geral</h2>
-        <p>Acompanhe seu progresso e visualize suas estatísticas em tempo real</p>
+<div class="container-lista">
+  <div class="terminal-header">
+    <div class="terminal-title">system@dashboard:~</div>
+    <div class="terminal-controls">
+      <div class="control-btn minimize"></div>
+      <div class="control-btn maximize"></div>
+      <div class="control-btn close"></div>
     </div>
+  </div>
 
-    <!-- Loading State -->
-    <div id="loadingState" style="text-align: center; padding: 60px;">
-        <div class="loading-spinner"></div>
-        <p style="margin-top: 20px; font-size: 1.1rem;">Carregando dados...</p>
-    </div>
+  <div class="terminal-body dashboard-container">
+    <h1 class="glitch" data-text="[ Dashboard de Progresso ]">[ Dashboard de Progresso ]</h1>
+    <p class="console-text" id="dashboard-status">C:\\> Carregando_dados_do_sistema...</p>
 
-    <!-- Dashboard Content -->
-    <div id="dashboardContent" style="display: none;">
-        
-        <!-- GRID DE DUAS COLUNAS -->
-        <div class="dashboard-grid">
-            
-            <!-- COLUNA DE TAREFAS -->
-            <section id="tarefas-section" class="card">
-                <h3 style="margin-bottom: 20px;">📝 Resumo de Tarefas</h3>
-
-                <!-- Estatísticas Principais de Tarefas -->
-                <div class="stats-grid">
-                    <div class="card stat-card">
-                        <div class="stat-icon">📋</div>
-                        <div class="stat-number" id="tarefas-total">0</div>
-                        <div class="stat-label">Total de Tarefas</div>
-                    </div>
-                    <div class="card stat-card">
-                        <div class="stat-icon">✅</div>
-                        <div class="stat-number" id="tarefas-concluidas">0</div>
-                        <div class="stat-label">Concluídas</div>
-                    </div>
-                    <div class="card stat-card">
-                        <div class="stat-icon">⏳</div>
-                        <div class="stat-number" id="tarefas-pendentes">0</div>
-                        <div class="stat-label">Pendentes</div>
-                    </div>
-                    <div class="card stat-card">
-                        <div class="stat-icon">📈</div>
-                        <div class="stat-number" id="tarefas-taxa">0%</div>
-                        <div class="stat-label">Taxa de Conclusão</div>
-                    </div>
-                </div>
-
-                <!-- Barra de Progresso de Tarefas -->
-                <div class="progress-container" style="margin-top: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <span style="font-weight: 600; font-size: 1.1rem;">Progresso de Tarefas</span>
-                        <span id="tarefas-progresso-texto" style="font-weight: 700; font-size: 1.2rem;">0%</span>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" id="tarefas-progresso-barra" style="width: 0%;">
-                            <span id="tarefas-progresso-label">0 de 0 concluídas</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Estatísticas por Prioridade -->
-                <h4 style="margin: 30px 0 15px 0;">📊 Distribuição por Prioridade</h4>
-                <div class="priority-stats">
-                    <div class="list-item">
-                        <div class="priority-label">
-                            <span style="font-size: 1.5rem;">🔴</span>
-                            <span>Alta</span>
-                        </div>
-                        <div class="priority-count" id="tarefas-prioridade-alta">0</div>
-                    </div>
-                    <div class="list-item">
-                        <div class="priority-label">
-                            <span style="font-size: 1.5rem;">🟡</span>
-                            <span>Média</span>
-                        </div>
-                        <div class="priority-count" id="tarefas-prioridade-media">0</div>
-                    </div>
-                    <div class="list-item">
-                        <div class="priority-label">
-                            <span style="font-size: 1.5rem;">🟢</span>
-                            <span>Baixa</span>
-                        </div>
-                        <div class="priority-count" id="tarefas-prioridade-baixa">0</div>
-                    </div>
-                </div>
-
-                <!-- Últimas Tarefas -->
-                <h4 style="margin: 30px 0 15px 0;">🕐 Últimas Tarefas Modificadas</h4>
-                <div class="recent-tasks">
-                    <div id="tarefas-recentes-lista">
-                        <!-- Preenchido via JavaScript -->
-                    </div>
-                </div>
-            </section>
-            
-            <!-- COLUNA DE PROJETOS -->
-            <section id="projetos-section" class="card">
-                <h3 style="margin-bottom: 20px;">🚀 Resumo de Projetos</h3>
-
-                <!-- Estatísticas Principais de Projetos -->
-                <div class="stats-grid">
-                    <div class="card stat-card">
-                        <div class="stat-icon">📋</div>
-                        <div class="stat-number" id="projetos-total">0</div>
-                        <div class="stat-label">Total de Projetos</div>
-                    </div>
-                    <div class="card stat-card">
-                        <div class="stat-icon">✅</div>
-                        <div class="stat-number" id="projetos-concluidos">0</div>
-                        <div class="stat-label">Concluídos</div>
-                    </div>
-                    <div class="card stat-card">
-                        <div class="stat-icon">▶️</div>
-                        <div class="stat-number" id="projetos-ativos">0</div>
-                        <div class="stat-label">Ativos</div>
-                    </div>
-                     <div class="card stat-card">
-                        <div class="stat-icon">⏸️</div>
-                        <div class="stat-number" id="projetos-pausados">0</div>
-                        <div class="stat-label">Pausados</div>
-                    </div>
-                </div>
-
-                <!-- Barra de Progresso de Projetos -->
-                <div class="progress-container" style="margin-top: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <span style="font-weight: 600; font-size: 1.1rem;">Progresso de Projetos</span>
-                        <span id="projetos-progresso-texto" style="font-weight: 700; font-size: 1.2rem;">0%</span>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" id="projetos-progresso-barra" style="width: 0%;">
-                            <span id="projetos-progresso-label">0 de 0 concluídos</span>
-                        </div>
-                    </div>
-                </div>
-
-                 <!-- Gráfico de Pizza (Donut Chart) -->
-                <h4 style="margin: 30px 0 15px 0;">📈 Visão Geral (Projetos)</h4>
-                <div class="chart-container">
-                    <div class="donut-chart">
-                        <div class="donut" id="projetos-donutChart">
-                            <svg width="200" height="200" viewBox="0 0 200 200">
-                                <circle cx="100" cy="100" r="90" fill="none" stroke="#555" stroke-width="30"/>
-                                <circle 
-                                    id="projetos-completedArc" 
-                                    cx="100" 
-                                    cy="100" 
-                                    r="90" 
-                                    fill="none" 
-                                    stroke="var(--cor-sucesso, #00ff00)" 
-                                    stroke-width="30"
-                                    stroke-dasharray="565.48"
-                                    stroke-dashoffset="565.48"
-                                    transform="rotate(-90 100 100)"
-                                    style="transition: stroke-dashoffset 1s ease;"
-                                />
-                            </svg>
-                            <div class="donut-center">
-                                <div class="donut-value" id="projetos-chartPercentage">0%</div>
-                                <div class="donut-label">Concluído</div>
-                            </div>
-                        </div>
-                        
-                        <div class="chart-legend">
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: var(--cor-sucesso, #00ff00);"></div>
-                                <div class="legend-text">
-                                    <div class="legend-label">Projetos Concluídos</div>
-                                    <div class="legend-value" id="projetos-legendCompleted">0</div>
-                                </div>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background: var(--cor-aviso, #ffff00);"></div>
-                                <div class="legend-text">
-                                    <div class="legend-label">Projetos Pendentes</div>
-                                    <div class="legend-value" id="projetos-legendPending">0</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Últimos Projetos -->
-                <h4 style="margin: 30px 0 15px 0;">🕐 Últimos Projetos Modificados</h4>
-                <div class="recent-tasks">
-                    <div id="projetos-recentes-lista">
-                        <!-- Preenchido via JavaScript -->
-                    </div>
-                </div>
-
-            </section>
-        </div> <!-- Fim .dashboard-grid -->
-
-
-        <!-- Ações Rápidas -->
-        <div class="card" style="text-align: center; margin-top: 2rem;">
-            <h3 style="margin-bottom: 20px;">⚡ Ações Rápidas</h3>
-            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                <a href="/tarefas" class="btn">
-                    📝 Gerenciar Tarefas
-                </a>
-                 <a href="/projetos" class="btn">
-                    🚀 Gerenciar Projetos
-                </a>
-                <button onclick="location.reload()" class="btn">
-                    🔄 Atualizar Dashboard
-                </button>
-            </div>
+    <div class="dashboard-grid">
+      <div class="stat-card">
+        <h2 class="card-title">Tarefas</h2>
+        <div class="stat-group">
+          <p>Total: <span id="tarefas-total" class="stat-value">0</span></p>
+          <p>Concluídas: <span id="tarefas-concluidas" class="stat-value" style="color: #00ff00;">0</span></p>
+          <p>Pendentes: <span id="tarefas-pendentes" class="stat-value" style="color: #ff0000;">0</span></p>
         </div>
+        <h3 class="card-subtitle">Prioridades (Pendentes)</h3>
+        <div class="stat-group priority-group">
+          <p>Alta: <span id="tarefas-prio-alta" class="stat-value p-alta">0</span></p>
+          <p>Média: <span id="tarefas-prio-media" class="stat-value p-media">0</span></p>
+          <p>Baixa: <span id="tarefas-prio-baixa" class="stat-value p-baixa">0</span></p>
+        </div>
+      </div>
 
+      <div class="stat-card">
+        <h2 class="card-title">Projetos</h2>
+        <div class="stat-group">
+          <p>Total: <span id="projetos-total" class="stat-value">0</span></p>
+          <p>Concluídos: <span id="projetos-concluidos" class="stat-value" style="color: #00ff00;">0</span></p>
+          <p>Pendentes: <span id="projetos-pendentes" class="stat-value" style="color: #ff0000;">0</span></p>
+        </div>
+        <h3 class="card-subtitle">Prioridades (Pendentes)</h3>
+        <div class="stat-group priority-group">
+          <p>Alta: <span id="projetos-prio-alta" class="stat-value p-alta">0</span></p>
+          <p>Média: <span id="projetos-prio-media" class="stat-value p-media">0</span></p>
+          <p>Baixa: <span id="projetos-prio-baixa" class="stat-value p-baixa">0</span></p>
+        </div>
+      </div>
     </div>
+
+    <div class="stat-card chart-container">
+      <h2 class="card-title">Progresso Total (Tarefas + Projetos)</h2>
+      <canvas id="progressoTotalChart"></canvas>
+    </div>
+  </div>
 </div>
 
 <script>
-// ============================================================================
-// INICIALIZAÇÃO
-// ============================================================================
-document.addEventListener('DOMContentLoaded', function() {
-    loadDashboardData();
-});
-
-// ============================================================================
-// CARREGAR DADOS GERAIS
-// ============================================================================
-async function loadDashboardData() {
+  document.addEventListener('DOMContentLoaded', async () => {
+    const statusElement = document.getElementById('dashboard-status');
+    
     try {
-        // 1. Chamar o novo endpoint unificado
-        const response = await fetch('/api/dashboard-stats');
-        const result = await response.json();
-        
-        if (result.success) {
-            // 2. Distribuir os dados para as funções de renderização
-            updateTarefasStats(result.data.tarefas);
-            updateProjetosStats(result.data.projetos);
-            
-            // Mostrar conteúdo e esconder loading
-            setTimeout(() => {
-                document.getElementById('loadingState').style.display = 'none';
-                document.getElementById('dashboardContent').style.display = 'block';
-            }, 500);
-        } else {
-            throw new Error(result.error || 'Falha ao buscar dados');
+      // 1. Buscar os dados da API unificada
+      const response = await fetch('/api/dashboard-stats');
+      if (!response.ok) {
+        throw new Error(`Falha ao buscar dados: ${response.statusText}`);
+      }
+      
+      const jsonResponse = await response.json();
+      if (!jsonResponse.success || !jsonResponse.data) {
+        throw new Error('Resposta da API inválida.');
+      }
+      
+      const { tarefas: t, projetos: p } = jsonResponse.data;
+      statusElement.textContent = "C:\\> Dados_carregados_com_sucesso. Renderizando_gráficos...";
+      statusElement.style.color = '#00ff00'; // Verde hacker para sucesso
+
+      // 2. Popular Card de Tarefas
+      document.getElementById('tarefas-total').textContent = t.total || 0;
+      document.getElementById('tarefas-concluidas').textContent = t.concluidas || 0;
+      document.getElementById('tarefas-pendentes').textContent = t.pendentes || 0;
+      document.getElementById('tarefas-prio-alta').textContent = t.prioridades?.Alta || 0;
+      document.getElementById('tarefas-prio-media').textContent = t.prioridades?.Media || 0;
+      document.getElementById('tarefas-prio-baixa').textContent = t.prioridades?.Baixa || 0;
+
+      // 3. Popular Card de Projetos
+      document.getElementById('projetos-total').textContent = p.total || 0;
+      document.getElementById('projetos-concluidos').textContent = p.concluidas || 0;
+      document.getElementById('projetos-pendentes').textContent = p.pendentes || 0;
+      document.getElementById('projetos-prio-alta').textContent = p.prioridades?.Alta || 0;
+      document.getElementById('projetos-prio-media').textContent = p.prioridades?.Media || 0;
+      document.getElementById('projetos-prio-baixa').textContent = p.prioridades?.Baixa || 0;
+
+      // 4. Renderizar Gráfico Combinado
+      const ctx = document.getElementById('progressoTotalChart').getContext('2d');
+      
+      // Configurações globais do Chart.js para o tema hacker
+      Chart.defaults.color = '#00ff00'; // Cor do texto (labels, tooltips)
+      Chart.defaults.borderColor = 'rgba(159, 0, 255, 0.2)'; // Cor das linhas do grid
+
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Pendentes', 'Concluídas'],
+          datasets: [{
+            label: 'Progresso Total',
+            data: [
+              (t.pendentes || 0) + (p.pendentes || 0),
+              (t.concluidas || 0) + (p.concluidas || 0)
+            ],
+            backgroundColor: [
+              'rgba(255, 0, 0, 0.7)',  // Vermelho para Pendentes
+              'rgba(0, 255, 0, 0.7)'   // Verde para Concluídas
+            ],
+            borderColor: '#9f00ff', // Borda roxa
+            borderWidth: 2,
+            hoverOffset: 4,
+            hoverBorderColor: '#00ff00'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '60%', // Cria o "buraco" do doughnut
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                color: '#00ff00',
+                font: {
+                  size: 14,
+                  family: "'Courier New', Courier, monospace"
+                }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              titleColor: '#9f00ff',
+              bodyColor: '#00ff00',
+              borderColor: '#9f00ff',
+              borderWidth: 1
+            }
+          }
         }
+      });
+
     } catch (error) {
-        console.error('Erro ao carregar dashboard:', error);
-        let errorMsg = error.message;
-        if (error.name === 'SyntaxError') {
-            errorMsg = "Não foi possível encontrar a API. Verifique seu 'index.js' e 'routes/api.js'.";
-        }
-        
-        document.getElementById('loadingState').innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">⚠️</div>
-                <h3>Erro ao carregar dashboard</h3>
-                <p>${errorMsg}</p>
-                <button onclick="location.reload()" class="btn" style="margin-top: 20px;">
-                    🔄 Recarregar
-                </button>
-            </div>
-        `;
+      console.error('Erro ao carregar dashboard:', error);
+      statusElement.textContent = `C:\\> ERRO_AO_CARREGAR_DADOS: ${error.message}`;
+      statusElement.style.color = '#ff0000'; // Vermelho para erro
     }
-}
-
-// ============================================================================
-// ATUALIZAR DADOS DE TAREFAS
-// ============================================================================
-function updateTarefasStats(data) {
-    if (!data) return;
-
-    // Estatísticas principais
-    document.getElementById('tarefas-total').textContent = data.total;
-    document.getElementById('tarefas-concluidas').textContent = data.concluidas;
-    document.getElementById('tarefas-pendentes').textContent = data.pendentes;
-    document.getElementById('tarefas-taxa').textContent = data.percentualConclusao + '%';
-
-    // Barra de progresso
-    document.getElementById('tarefas-progresso-texto').textContent = data.percentualConclusao + '%';
-    const progressBar = document.getElementById('tarefas-progresso-barra');
-    progressBar.style.width = data.percentualConclusao + '%';
-    progressBar.textContent = `${data.concluidas} de ${data.total} concluídas`;
-    
-    if (data.percentualConclusao > 75) progressBar.style.background = 'var(--cor-sucesso, #00ff00)';
-    else if (data.percentualConclusao > 40) progressBar.style.background = 'var(--cor-aviso, #ffff00)';
-    else progressBar.style.background = 'var(--cor-perigo, #ff0000)';
-
-    // Prioridades
-    document.getElementById('tarefas-prioridade-alta').textContent = data.porPrioridade.alta;
-    document.getElementById('tarefas-prioridade-media').textContent = data.porPrioridade.media;
-    document.getElementById('tarefas-prioridade-baixa').textContent = data.porPrioridade.baixa;
-
-    // Últimas tarefas
-    renderRecentTasks(data.ultimasTarefas);
-}
-
-// ============================================================================
-// ATUALIZAR DADOS DE PROJETOS
-// ============================================================================
-function updateProjetosStats(data) {
-    if (!data) return;
-
-    // Estatísticas principais
-    document.getElementById('projetos-total').textContent = data.total;
-    document.getElementById('projetos-concluidos').textContent = data.concluidos;
-    document.getElementById('projetos-ativos').textContent = data.ativos;
-    document.getElementById('projetos-pausados').textContent = data.pausados;
-
-    // Barra de progresso
-    document.getElementById('projetos-progresso-texto').textContent = data.percentualConclusao + '%';
-    const progressBar = document.getElementById('projetos-progresso-barra');
-    progressBar.style.width = data.percentualConclusao + '%';
-    progressBar.textContent = `${data.concluidos} de ${data.total} concluídos`;
-
-    if (data.percentualConclusao > 75) progressBar.style.background = 'var(--cor-sucesso, #00ff00)';
-    else if (data.percentualConclusao > 40) progressBar.style.background = 'var(--cor-aviso, #ffff00)';
-    else progressBar.style.background = 'var(--cor-perigo, #ff0000)';
-    
-    // Gráfico donut
-    updateDonutChart('projetos-completedArc', data.percentualConclusao);
-    document.getElementById('projetos-chartPercentage').textContent = data.percentualConclusao + '%';
-
-    // Legenda
-    document.getElementById('projetos-legendCompleted').textContent = `${data.concluidos} concluídos`;
-    document.getElementById('projetos-legendPending').textContent = `${data.pendentes} pendentes`;
-}
-
-// ============================================================================
-// RENDERIZAR ÚLTIMAS TAREFAS
-// ============================================================================
-function renderRecentTasks(tasks) {
-    const container = document.getElementById('tarefas-recentes-lista');
-    if (!tasks || tasks.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state" style="padding: 1rem 0;">
-                <div class="empty-state-icon">📝</div>
-                <h3>Nenhuma tarefa ainda</h3>
-            </div>
-        `;
-        return;
-    }
-    
-    const tasksHtml = tasks.map(task => {
-        const priorityEmoji = { alta: '🔴', media: '🟡', baixa: '🟢' };
-        const dataCriacao = new Date(task.dataCriacao).toLocaleDateString('pt-BR', {
-            day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
-        });
-        const isConcluida = task.status === 'concluida';
-        
-        return `
-            <div class="list-item priority-${task.prioridade}">
-                <div class="task-title-row">
-                    <div class="task-title-text">
-                        ${isConcluida ? '✅' : '⏳'} ${escapeHtml(task.titulo)}
-                    </div>
-                    <span class="task-status-badge ${isConcluida ? 'completed' : 'pending'}">
-                        ${isConcluida ? 'Concluída' : 'Pendente'}
-                    </span>
-                </div>
-                <div class="task-meta-info">
-                    <span>${priorityEmoji[task.prioridade] || '⚪'} ${task.prioridade ? (task.prioridade.charAt(0).toUpperCase() + task.prioridade.slice(1)) : 'N/A'}</span>
-                    <span>📅 ${dataCriacao}</span>
-                </div>
-            </div>
-        `;
-    }).join('');
-    
-    container.innerHTML = tasksHtml;
-}
-
-// ============================================================================
-// FUNÇÕES AUXILIARES
-// ============================================================================
-function updateDonutChart(elementId, percentage) {
-    const circle = document.getElementById(elementId);
-    if (!circle) return;
-    const circumference = 565.48; // 2 * π * r (r = 90)
-    const offset = circumference - (percentage / 100 * circumference);
-    
-    setTimeout(() => {
-        circle.style.strokeDashoffset = offset;
-    }, 100); 
-}
-
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
+  });
 </script>

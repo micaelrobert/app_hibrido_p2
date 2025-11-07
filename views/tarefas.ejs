@@ -1,101 +1,205 @@
-<h2>Gerenciador de Tarefas</h2>
-<p>Adicione, gerencie e remova suas tarefas.</p>
+<%- contentFor('body') %>
 
-<form id="form-criar-tarefa">
-  <div class="form-group">
-    <label for="titulo">Título da Tarefa:</label>
-    <input type="text" id="titulo" name="titulo" required placeholder="Ex: Corrigir bug na API...">
+<div class="container-lista">
+  <div class="terminal-header">
+    <div class="terminal-title">system@tarefas:~</div>
+    <div class="terminal-controls">
+      <div class="control-btn minimize"></div>
+      <div class="control-btn maximize"></div>
+      <div class="control-btn close"></div>
+    </div>
   </div>
-  <div class="form-group">
-    <label for="descricao">Descrição (Opcional):</label>
-    <textarea id="descricao" name="descricao" placeholder="Ex: O endpoint /users está..."></textarea>
-  </div>
-  <button type="submit" class="btn">Adicionar Tarefa</button>
-</form>
 
-<h2 style="margin-top: 2rem;">Tarefas Pendentes</h2>
+  <div class="terminal-body">
+    <h1 class="glitch" data-text="[ Lista de Tarefas ]">[ Lista de Tarefas ]</h1>
+    <p class="console-text">C:\\> Gerenciando_protocolos_de_tarefas...</p>
 
-<div id="lista-tarefas">
-  <% if (tarefas.length > 0) { %>
-    <% tarefas.forEach(tarefa => { %>
-      <div class="list-item" id="tarefa-<%= tarefa._id %>">
-        <div class="item-content">
-          <h3><%= tarefa.titulo %></h3>
-          <p><%= tarefa.descricao || 'Sem descrição' %> (Status: <%= tarefa.status %>)</p>
-        </div>
-        <div class="item-actions">
-          <button class="btn btn-delete" onclick="removerTarefa('<%= tarefa._id %>')">Concluir & Remover</button>
-        </div>
+    <form id="form-nova-tarefa" class="form-hacker">
+      <div class="form-group">
+        <label for="nome-tarefa" class="console-label">>> Nova Tarefa:</label>
+        <input
+          type="text"
+          id="nome-tarefa"
+          name="nome"
+          class="form-input"
+          placeholder="Descrever tarefa..."
+          required
+        />
       </div>
-    <% }) %>
-  <% } else { %>
-    <p id="sem-tarefas">Nenhuma tarefa encontrada. Adicione uma nova!</p>
-  <% } %>
+      <div class="form-group">
+        <label for="prioridade-tarefa" class="console-label">>> Prioridade:</label>
+        <select id="prioridade-tarefa" name="prioridade" class="form-input" required>
+          <option value="Baixa">Baixa</option>
+          <option value="Media" selected>Média</option>
+          <option value="Alta">Alta</option>
+        </select>
+      </div>
+      <button type="submit" class="btn-hacker">[ Adicionar Tarefa ]</button>
+    </form>
+
+    <ul id="lista-tarefas" class="lista-hacker">
+      <% if (tarefas && tarefas.length > 0) { %>
+        <% tarefas.forEach(tarefa => { %>
+          <li
+            class="item-lista prioridade-<%= tarefa.prioridade.toLowerCase() %> <%= tarefa.concluido ? 'concluido' : '' %>"
+            data-id="<%= tarefa._id %>"
+            data-concluido="<%= tarefa.concluido %>"
+          >
+            <span class="item-texto">
+              <strong class="item-nome">[<%= tarefa.nome %>]</strong>
+              <span class="item-detalhe">- Prioridade: <%= tarefa.prioridade %></span>
+              <span class="item-data">(Criada em: <%= new Date(tarefa.dataCriacao).toLocaleDateString('pt-BR') %>)</span>
+            </span>
+            <div class="botoes-item">
+              <button class="btn-acao btn-concluir">
+                <%= tarefa.concluido ? '[ Reabrir ]' : '[ Concluir ]' %>
+              </button>
+              <button class="btn-acao btn-apagar">[ Apagar ]</button>
+            </div>
+          </li>
+        <% }) %>
+      <% } else { %>
+        <li id="sem-tarefas" class="console-text">>> Nenhuma tarefa encontrada. Sistema ocioso...</li>
+      <% } %>
+    </ul>
+  </div>
 </div>
 
 <script>
-  // Script para lidar com a criação de tarefas via API
-  document.getElementById('form-criar-tarefa').addEventListener('submit', async (e) => {
+  // Adicionar Tarefa
+  document.getElementById('form-nova-tarefa').addEventListener('submit', async function (e) {
     e.preventDefault();
-    
-    const titulo = document.getElementById('titulo').value;
-    const descricao = document.getElementById('descricao').value;
+
+    const nome = this.elements.nome.value;
+    const prioridade = this.elements.prioridade.value;
 
     try {
       const response = await fetch('/api/mongodb/tarefas', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ titulo, descricao, status: 'pendente' }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, prioridade }),
       });
 
       if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || 'Falha ao criar tarefa');
+        throw new Error('Falha ao criar tarefa.');
       }
-      
-      // Recarrega a página para mostrar a nova tarefa
-      location.reload();
+
+      const novaTarefa = await response.json();
+      adicionarTarefaNaLista(novaTarefa);
+
+      // Limpar formulário
+      this.reset();
+      this.elements.nome.focus();
 
     } catch (error) {
-      console.error('Erro:', error);
-      alert(error.message);
+      console.error('Erro ao adicionar tarefa:', error);
+      alert('Erro: ' + error.message);
     }
   });
 
-  // Script para remover tarefa via API
-  async function removerTarefa(id) {
-    if (!confirm('Tem certeza que deseja remover esta tarefa?')) {
-      return;
+  // Adiciona listeners aos botões de Concluir e Apagar
+  function adicionarListenersAosBotoes(itemLista) {
+    // Botão Concluir/Reabrir
+    itemLista.querySelector('.btn-concluir').addEventListener('click', async (e) => {
+      const li = e.target.closest('li');
+      const id = li.dataset.id;
+      const isConcluido = li.dataset.concluido === 'true';
+      
+      try {
+        const response = await fetch(`/api/mongodb/tarefas/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ concluido: !isConcluido }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Falha ao atualizar tarefa.');
+        }
+
+        const { data } = await response.json();
+        
+        // Atualiza o estado no DOM
+        li.dataset.concluido = data.concluido;
+        li.classList.toggle('concluido', data.concluido);
+        e.target.textContent = data.concluido ? '[ Reabrir ]' : '[ Concluir ]';
+
+      } catch (error) {
+        console.error('Erro ao concluir tarefa:', error);
+        alert('Erro: ' + error.message);
+      }
+    });
+
+    // Botão Apagar
+    itemLista.querySelector('.btn-apagar').addEventListener('click', async (e) => {
+      const li = e.target.closest('li');
+      const id = li.dataset.id;
+
+      if (!confirm(`C:\\> Tem certeza que deseja apagar a tarefa "${li.querySelector('.item-nome').textContent}"? Esta ação é irreversível.`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/mongodb/tarefas/${id}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          throw new Error('Falha ao apagar tarefa.');
+        }
+
+        // Remove o item da lista com animação
+        li.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        li.style.opacity = '0';
+        li.style.transform = 'translateX(-100%)';
+        
+        setTimeout(() => {
+          li.remove();
+          // Verifica se a lista ficou vazia
+          const lista = document.getElementById('lista-tarefas');
+          if (lista.children.length === 0) {
+            lista.innerHTML = '<li id="sem-tarefas" class="console-text">>> Nenhuma tarefa encontrada. Sistema ocioso...</li>';
+          }
+        }, 500);
+
+      } catch (error) {
+        console.error('Erro ao apagar tarefa:', error);
+        alert('Erro: ' + error.message);
+      }
+    });
+  }
+
+  // Adiciona listeners para os itens já carregados na página
+  document.querySelectorAll('#lista-tarefas .item-lista').forEach(adicionarListenersAosBotoes);
+
+  // Função para adicionar nova tarefa na lista (DOM)
+  function adicionarTarefaNaLista(tarefa) {
+    // Remove a mensagem "sem tarefas" se existir
+    const semTarefas = document.getElementById('sem-tarefas');
+    if (semTarefas) {
+      semTarefas.remove();
     }
 
-    try {
-      const response = await fetch(`/api/mongodb/tarefas/${id}`, {
-        method: 'DELETE',
-      });
+    const li = document.createElement('li');
+    li.className = `item-lista prioridade-${tarefa.prioridade.toLowerCase()}`;
+    li.dataset.id = tarefa._id;
+    li.dataset.concluido = 'false'; // Nova tarefa nunca está concluída
 
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || 'Falha ao remover tarefa');
-      }
+    li.innerHTML = `
+      <span class="item-texto">
+        <strong class="item-nome">[${tarefa.nome}]</strong>
+        <span class="item-detalhe">- Prioridade: ${tarefa.prioridade}</span>
+        <span class="item-data">(Criada em: ${new Date(tarefa.dataCriacao).toLocaleDateString('pt-BR')})</span>
+      </span>
+      <div class="botoes-item">
+        <button class="btn-acao btn-concluir">[ Concluir ]</button>
+        <button class="btn-acao btn-apagar">[ Apagar ]</button>
+      </div>
+    `;
 
-      // Remove o item da UI
-      const itemElement = document.getElementById(`tarefa-${id}`);
-      if (itemElement) {
-        itemElement.remove();
-      }
-
-      // Verifica se a lista está vazia
-      const lista = document.getElementById('lista-tarefas');
-      if (lista.getElementsByClassName('list-item').length === 0) {
-        const msg = document.getElementById('sem-tarefas');
-        if (msg) msg.style.display = 'block';
-      }
-
-    } catch (error) {
-      console.error('Erro:', error);
-      alert(error.message);
-    }
+    // Adiciona no início da lista
+    document.getElementById('lista-tarefas').prepend(li);
+    
+    // Adiciona os listeners para os botões da nova tarefa
+    adicionarListenersAosBotoes(li);
   }
 </script>

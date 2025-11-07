@@ -1,63 +1,100 @@
+/**
+ * Rotas da API MongoDB para Projetos
+ *
+ * Define os endpoints da API que interagem com o MongoDB Atlas,
+ * utilizando o ProjetoService.
+ */
+
 const express = require('express');
 const router = express.Router();
-const ProjetoService = require('../services/ProjetoService');
 
-// Rota [GET] /api/projetos - Listar todos os projetos
+// Importa o serviço que contém a lógica de negócios
+const {
+  listar,
+  criar,
+  remover,
+  atualizar,
+} = require('../services/ProjetoService'); // Note que stats não é importado aqui, pois está na rota unificada
+
+/**
+ * Middleware de Log
+ */
+const logRequests = (req, res, next) => {
+  console.log(
+    `[API Projetos] Recebida requisição ${req.method} para ${req.originalUrl}`
+  );
+  if (Object.keys(req.body).length > 0) {
+    console.log('Body:', req.body);
+  }
+  next();
+};
+
+// Aplica o middleware de log para todas as rotas neste arquivo
+router.use(logRequests);
+
+// ============================================================================
+// 📁 ROTAS DE PROJETOS (MongoDB)
+// ============================================================================
+
+/**
+ * Rota: GET /api/projetos
+ * Descrição: Lista todos os projetos do MongoDB.
+ */
 router.get('/', async (req, res) => {
   try {
-    const projetos = await ProjetoService.listar();
+    const projetos = await listar();
     res.json(projetos);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('[Erro API Listar Projetos]', error.message);
+    res.status(500).json({ success: false, error: 'Falha ao listar projetos' });
   }
 });
 
-// Rota [POST] /api/projetos - Criar um novo projeto
+/**
+ * Rota: POST /api/projetos
+ * Descrição: Cria um novo projeto no MongoDB.
+ */
 router.post('/', async (req, res) => {
   try {
-    const projeto = await ProjetoService.criar(req.body);
-    res.status(201).json(projeto);
+    const novoProjeto = await criar(req.body);
+    res.status(201).json(novoProjeto); // 201 Created
   } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-// Rota [GET] /api/projetos/:id - Buscar um projeto por ID
-router.get('/:id', async (req, res) => {
-  try {
-    const projeto = await ProjetoService.buscarPorId(req.params.id);
-    if (!projeto) {
-      return res.status(404).json({ message: 'Projeto não encontrado' });
+    console.error('[Erro API Criar Projeto]', error.message);
+    if (error.name === 'ValidationError') {
+      res.status(400).json({ success: false, error: error.message });
+    } else {
+      res.status(500).json({ success: false, error: 'Falha ao criar projeto: ' + error.message });
     }
-    res.json(projeto);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
   }
 });
 
-// Rota [PUT] /api/projetos/:id - Atualizar um projeto
+/**
+ * Rota: PUT /api/projetos/:id
+ * Descrição: Atualiza um projeto (concluído ou prioridade).
+ */
 router.put('/:id', async (req, res) => {
   try {
-    const projeto = await ProjetoService.atualizar(req.params.id, req.body);
-    if (!projeto) {
-      return res.status(404).json({ message: 'Projeto não encontrado' });
-    }
-    res.json(projeto);
+    const id = req.params.id;
+    const projetoAtualizado = await atualizar(id, req.body);
+    res.json({ success: true, data: projetoAtualizado });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('[Erro API Atualizar Projeto]', error.message);
+    res.status(500).json({ success: false, error: 'Falha ao atualizar projeto: ' + error.message });
   }
 });
 
-// Rota [DELETE] /api/projetos/:id - Remover um projeto
+/**
+ * Rota: DELETE /api/projetos/:id
+ * Descrição: Remove um projeto do MongoDB pelo ID.
+ */
 router.delete('/:id', async (req, res) => {
   try {
-    const projeto = await ProjetoService.remover(req.params.id);
-    if (!projeto) {
-      return res.status(404).json({ message: 'Projeto não encontrado' });
-    }
-    res.status(204).end(); // 204 No Content
+    const id = req.params.id;
+    await remover(id);
+    res.status(204).json({ success: true }); // 204 No Content
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('[Erro API Remover Projeto]', error.message);
+    res.status(500).json({ success: false, error: 'Falha ao remover projeto: ' + error.message });
   }
 });
 
