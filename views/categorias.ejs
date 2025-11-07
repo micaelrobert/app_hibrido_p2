@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - <%= appName %></title>
+    <style>
+        /* Reset e base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        <%- include('partials/header') %>
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilos específicos da página de categorias */
+        .category-header {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%);
+            padding: 40px;
+            border-radius: 24px;
+            margin-bottom: 35px;
+            border: 2px solid rgba(236, 72, 153, 0.4);
+            text-align: center;
+        }
+
+        .category-header h2 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #ffffff, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0 0 15px 0;
+            font-weight: 900;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #60a5fa;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .color-icon-selector {
+            display: flex;
+            gap: 20px;
+        }
+
+        .color-picker-group,
+        .icon-picker-group {
+            flex: 1;
+        }
+
+        .color-preview {
+            width: 100%;
+            height: 60px;
+            border-radius: 10px;
+            margin-top: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .icon-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .icon-option {
+            width: 50px;
+            height: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .icon-option:hover,
+        .icon-option.active {
+            background: rgba(96, 165, 250, 0.3);
+            border-color: #60a5fa;
+            transform: scale(1.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            color: white;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .category-card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 25px;
+            border-radius: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .category-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .category-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .category-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 15px;
+            min-height: 40px;
+        }
+
+        .category-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .category-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-edit,
+        .btn-delete {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn-edit:hover,
+        .btn-delete:hover {
+            transform: scale(1.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            opacity: 0.7;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: white;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .category-card {
+            animation: slideIn 0.3s ease;
+        }
+
+        /* Navegação */
+        .nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 30px;
+        }
+
+        .nav ul {
+            list-style: none;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <%- include('partials/header') %>
+
+        <div class="category-header">
+            <div style="font-size: 4rem; margin-bottom: 20px;">📁</div>
+            <h2>Categorias e Projetos</h2>
+            <p>Organize suas tarefas em categorias personalizadas</p>
+        </div>
+
+        <!-- Formulário de Nova Categoria -->
+        <div class="card">
+            <h3 style="margin-bottom: 20px;">➕ Nova Categoria</h3>
+            <form id="categoryForm">
+                <div class="form-group">
+                    <label for="nome">Nome da Categoria *</label>
+                    <input 
+                        type="text" 
+                        id="nome" 
+                        name="nome" 
+                        placeholder="Ex: Desenvolvimento, Estudos, Pessoal..."
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="descricao">Descrição</label>
+                    <textarea 
+                        id="descricao" 
+                        name="descricao" 
+                        placeholder="Descreva o propósito desta categoria... (opcional)"
+                        rows="3"
+                    ></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cor">Cor da Categoria</label>
+                        <input 
+                            type="color" 
+                            id="cor" 
+                            name="cor" 
+                            value="#60a5fa"
+                        >
+                        <div class="color-preview" id="colorPreview">
+                            <span id="previewIcon">📁</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Escolha um Ícone</label>
+                        <div class="icon-selector">
+                            <div class="icon-option active" data-icon="📁">📁</div>
+                            <div class="icon-option" data-icon="💻">💻</div>
+                            <div class="icon-option" data-icon="📚">📚</div>
+                            <div class="icon-option" data-icon="🏠">🏠</div>
+                            <div class="icon-option" data-icon="💼">💼</div>
+                            <div class="icon-option" data-icon="🎯">🎯</div>
+                            <div class="icon-option" data-icon="🎨">🎨</div>
+                            <div class="icon-option" data-icon="🏃">🏃</div>
+                            <div class="icon-option" data-icon="🍔">🍔</div>
+                            <div class="icon-option" data-icon="🎮">🎮</div>
+                            <div class="icon-option" data-icon="✈️">✈️</div>
+                            <div class="icon-option" data-icon="❤️">❤️</div>
+                        </div>
+                        <input type="hidden" id="icone" name="icone" value="📁">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                    ✨ Criar Categoria
+                </button>
+            </form>
+        </div>
+
+        <!-- Lista de Categorias -->
+        <div class="card">
+            <h3 style="margin-bottom: 20px;">📂 Minhas Categorias</h3>
+            <div id="categoriesContainer">
+                <div style="text-align: center; padding: 40px;">
+                    <p>Carregando categorias...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✏️ Editar Categoria</h3>
+                <button class="modal-close" onclick="closeEditModal()">×</button>
+            </div>
+            <form id="editCategoryForm">
+                <input type="hidden" id="edit_id">
+                
+                <div class="form-group">
+                    <label for="edit_nome">Nome da Categoria *</label>
+                    <input type="text" id="edit_nome" name="nome" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_descricao">Descrição</label>
+                    <textarea id="edit_descricao" name="descricao" rows="3"></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_cor">Cor</label>
+                        <input type="color" id="edit_cor" name="cor">
+                        <div class="color-preview" id="editColorPreview">
+                            <span id="editPreviewIcon">📁</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Ícone</label>
+                        <div class="icon-selector" id="editIconSelector">
+                            <div class="icon-option" data-icon="📁">📁</div>
+                            <div class="icon-option" data-icon="💻">💻</div>
+                            <div class="icon-option" data-icon="📚">📚</div>
+                            <div class="icon-option" data-icon="🏠">🏠</div>
+                            <div class="icon-option" data-icon="💼">💼</div>
+                            <div class="icon-option" data-icon="🎯">🎯</div>
+                            <div class="icon-option" data-icon="🎨">🎨</div>
+                            <div class="icon-option" data-icon="🏃">🏃</div>
+                            <div class="icon-option" data-icon="🍔">🍔</div>
+                            <div class="icon-option" data-icon="🎮">🎮</div>
+                            <div class="icon-option" data-icon="✈️">✈️</div>
+                            <div class="icon-option" data-icon="❤️">❤️</div>
+                        </div>
+                        <input type="hidden" id="edit_icone" name="icone">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="margin-top: 20px;">
+                    💾 Salvar Alterações
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Estado global
+        let selectedIcon = '📁';
+        let selectedColor = '#60a5fa';
+        let editingCategoryId = null;
+        let editSelectedIcon = '📁';
+        let editSelectedColor = '#60a5fa';
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            setupIconSelector();
+            setupColorPicker();
+            setupCategoryForm();
+            setupEditForm();
+            loadCategories();
+        });
+
+        // ====================================================================
+        // SELETOR DE ÍCONES
+        // ====================================================================
+        function setupIconSelector() {
+            // Seletor principal (criar)
+            const iconOptions = document.querySelectorAll('.icon-selector .icon-option');
+            iconOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const isEdit = this.closest('#editIconSelector');
+                    const selector = isEdit ? '#editIconSelector' : '.icon-selector';
+                    const input = isEdit ? '#edit_icone' : '#icone';
+                    const preview = isEdit ? '#editPreviewIcon' : '#previewIcon';
+                    
+                    document.querySelectorAll(`${selector} .icon-option`).forEach(opt => 
+                        opt.classList.remove('active')
+                    );
+                    this.classList.add('active');
+                    
+                    const icon = this.dataset.icon;
+                    if (isEdit) {
+                        editSelectedIcon = icon;
+                    } else {
+                        selectedIcon = icon;
+                    }
+                    
+                    document.querySelector(input).value = icon;
+                    document.querySelector(preview).textContent = icon;
+                });
+            });
+        }
+
+        // ====================================================================
+        // SELETOR DE COR
+        // ====================================================================
+        function setupColorPicker() {
+            const colorInput = document.getElementById('cor');
+            const colorPreview = document.getElementById('colorPreview');
+            
+            colorInput.addEventListener('input', function() {
+                selectedColor = this.value;
+                colorPreview.style.backgroundColor = this.value;
+            });
+            
+            // Inicial
+            colorPreview.style.backgroundColor = selectedColor;
+            
+            // Edit modal
+            const editColorInput = document.getElementById('edit_cor');
+            const editColorPreview = document.getElementById('editColorPreview');
+            
+            editColorInput.addEventListener('input', function() {
+                editSelectedColor = this.value;
+                editColorPreview.style.backgroundColor = this.value;
+            });
+        }
+
+        // ====================================================================
+        // FORMULÁRIO DE CRIAR CATEGORIA
+        // ====================================================================
+        function setupCategoryForm() {
+            const form = document.getElementById('categoryForm');
+            
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const nome = document.getElementById('nome').value.trim();
+                const descricao = document.getElementById('descricao').value.trim();
+                
+                if (!nome) {
+                    showNotification('❌ Nome é obrigatório!', 'error');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/api/categorias', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            nome,
+                            descricao,
+                            cor: selectedColor,
+                            icone: selectedIcon
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        form.reset();
+                        selectedIcon = '📁';
+                        selectedColor = '#60a5fa';
+                        document.querySelector('.icon-selector .icon-option').click();
+                        document.getElementById('cor').value = '#60a5fa';
+                        document.getElementById('colorPreview').style.backgroundColor = '#60a5fa';
+                        
+                        loadCategories();
+                        showNotification('✅ Categoria criada com sucesso!', 'success');
+                    } else {
+                        showNotification('❌ ' + result.error, 'error');
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    showNotification('❌ Erro ao criar categoria!', 'error');
+                }
+            });
+        }
+
+        // ====================================================================
+        // CARREGAR CATEGORIAS
+        // ====================================================================
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/categorias');
+                const result = await response.json();
+                
+                if (result.success) {
+                    renderCategories(result.data);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('categoriesContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <h3>Erro ao carregar categorias</h3>
+                    </div>
+                `;
+            }
+        }
+
+        // ====================================================================
+        // RENDERIZAR CATEGORIAS
+        // ====================================================================
+        function renderCategories(categories) {
+            const container = document.getElementById('categoriesContainer');
+            
+            if (categories.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📁</div>
+                        <h3>Nenhuma categoria ainda</h3>
+                        <p>Crie sua primeira categoria acima!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const html = categories.map(cat => `
+                <div class="category-card" style="border-left: 5px solid ${cat.cor};">
+                    <div class="category-icon">${cat.icone}</div>
+                    <div class="category-name">${escapeHtml(cat.nome)}</div>
+                    <div class="category-description">${escapeHtml(cat.descricao || 'Sem descrição')}</div>
+                    
+                    <div class="category-stats">
+                        <div class="stat-item">
+                            <span>📊</span>
+                            <span>${cat.totalTarefas || 0} tarefas</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>✅</span>
+                            <span>${cat.tarefasConcluidas || 0} concluídas</span>
+                        </div>
+                    </div>
+                    
+                    <div class="category-actions">
+                        <button class="btn-edit" onclick="openEditModal(${cat.id})">
+                            ✏️ Editar
+                        </button>
+                        <button class="btn-delete" onclick="deleteCategory(${cat.id})">
+                            🗑️ Excluir
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = `<div class="categories-grid">${html}</div>`;
+        }
+
+        // ====================================================================
+        // EDIÇÃO DE CATEGORIA
+        // ====================================================================
+        async function openEditModal(id) {
+            try {
+                const response = await fetch(`/api/categorias/${id}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const cat = result.data;
+                    
+                    document.getElementById('edit_id').value = cat.id;
+                    document.getElementById('edit_nome').value = cat.nome;
+                    document.getElementById('edit_descricao').value = cat.descricao || '';
+                    document.getElementById('edit_cor').value = cat.cor;
+                    document.getElementById('edit_icone').value = cat.icone;
+                    
+                    editSelectedColor = cat.cor;
+                    editSelectedIcon = cat.icone;
+                    
+                    document.getElementById('editColorPreview').style.backgroundColor = cat.cor;
+                    document.getElementById('editPreviewIcon').textContent = cat.icone;
+                    
+                    // Selecionar ícone ativo
+                    document.querySelectorAll('#editIconSelector .icon-option').forEach(opt => {
+                        opt.classList.remove('active');
+                        if (opt.dataset.icon === cat.icone) {
+                            opt.classList.add('active');
+                        }
+                    });
+                    
+                    document.getElementById('editModal').classList.add('active');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showNotification('❌ Erro ao carregar categoria!', 'error');
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        function setupEditForm() {
+            const form = document.getElementById('editCategoryForm');
+            
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const id = document.getElementById('edit_id').value;
+                const nome = document.getElementById('edit_nome').value.trim();
+                const descricao = document.getElementById('edit_descricao').value.trim();
+                
+                try {
+                    const response = await fetch(`/api/categorias/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            nome,
+                            descricao,
+                            cor: editSelectedColor,
+                            icone: editSelectedIcon
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        closeEditModal();
+                        loadCategories();
+                        showNotification('✅ Categoria atualizada!', 'success');
+                    } else {
+                        showNotification('❌ ' + result.error, 'error');
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    showNotification('❌ Erro ao atualizar!', 'error');
+                }
+            });
+        }
+
+        // ====================================================================
+        // DELETAR CATEGORIA
+        // ====================================================================
+        async function deleteCategory(id) {
+            if (!confirm('Tem certeza? Esta ação não pode ser desfeita.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/categorias/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    loadCategories();
+                    showNotification('🗑️ Categoria excluída!', 'success');
+                } else {
+                    showNotification('❌ ' + result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showNotification('❌ Erro ao excluir!', 'error');
+            }
+        }
+
+        // ====================================================================
+        // FUNÇÕES AUXILIARES
+        // ====================================================================
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#60a5fa'};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 12px;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+                z-index: 9999;
+                font-weight: 500;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // Fechar modal ao clicar fora
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+    </script>
+</body>
+</html>
+
+

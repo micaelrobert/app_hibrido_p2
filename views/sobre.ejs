@@ -1,0 +1,342 @@
+<style>
+.feature-highlight {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(147, 51, 234, 0.15));
+    padding: 30px;
+    border-radius: 20px;
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-highlight::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+    animation: rotate 15s linear infinite;
+}
+
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 25px;
+    border-radius: 16px;
+    margin: 20px 0;
+    border-left: 5px solid;
+    transition: all 0.4s ease;
+    position: relative;
+}
+
+.timeline-item:nth-child(1) { border-color: #22c55e; }
+.timeline-item:nth-child(2) { border-color: #3b82f6; }
+.timeline-item:nth-child(3) { border-color: #a78bfa; }
+.timeline-item:nth-child(4) { border-color: #ec4899; }
+
+.timeline-item:hover {
+    transform: translateX(10px) scale(1.02);
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.timeline-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.tech-item {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    padding: 25px;
+    border-radius: 16px;
+    text-align: center;
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.4s ease;
+    cursor: pointer;
+}
+
+.tech-item:hover {
+    transform: translateY(-10px) rotate(2deg);
+    box-shadow: 0 20px 50px rgba(167, 139, 250, 0.4);
+    border-color: rgba(167, 139, 250, 0.5);
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(236, 72, 153, 0.2));
+}
+
+.tech-item-icon {
+    font-size: 3.5rem;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.info-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 16px 24px;
+    border-radius: 50px;
+    margin: 10px;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.info-badge:hover {
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 30px rgba(167, 139, 250, 0.3);
+}
+
+.info-badge-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+}
+
+.stat-highlight {
+    text-align: center;
+    padding: 30px;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.15));
+    border-radius: 20px;
+    border: 2px solid rgba(34, 197, 94, 0.3);
+    transition: all 0.4s ease;
+}
+
+.stat-highlight:hover {
+    transform: scale(1.05);
+    box-shadow: 0 20px 50px rgba(34, 197, 94, 0.4);
+}
+
+.stat-number-large {
+    font-size: 4rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #22c55e, #10b981);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+</style>
+
+<div class="card" style="background: linear-gradient(135deg, rgba(167, 139, 250, 0.25), rgba(236, 72, 153, 0.25)); border: 2px solid rgba(167, 139, 250, 0.4);">
+    <div style="text-align: center; padding: 20px;">
+        <div style="font-size: 5rem; margin-bottom: 20px; animation: bounce 2s ease-in-out infinite;">ℹ️</div>
+        <h2 style="font-size: 2.8rem; margin-bottom: 20px; background: linear-gradient(135deg, #ffffff, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">
+            Sobre o Projeto
+        </h2>
+        <p style="font-size: 1.2rem; opacity: 0.95; max-width: 700px; margin: 0 auto; line-height: 1.8;">
+            <%= description %>
+        </p>
+    </div>
+</div>
+
+<!-- Estatísticas do Projeto -->
+<div class="card">
+    <h3 style="font-size: 1.8rem; margin-bottom: 30px; text-align: center;">
+        <i class="fas fa-chart-bar"></i> Estatísticas do Projeto
+    </h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px;">
+        <div class="stat-highlight">
+            <div class="stat-number-large">100%</div>
+            <div style="font-size: 1.1rem; font-weight: 600;">Funcional</div>
+            <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 5px;">Todos os recursos</div>
+        </div>
+        <div class="stat-highlight" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.15)); border-color: rgba(59, 130, 246, 0.3);">
+            <div class="stat-number-large" style="background: linear-gradient(135deg, #3b82f6, #2563eb); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">6+</div>
+            <div style="font-size: 1.1rem; font-weight: 600;">Tecnologias</div>
+            <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 5px;">Stack moderno</div>
+        </div>
+        <div class="stat-highlight" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(219, 39, 119, 0.15)); border-color: rgba(236, 72, 153, 0.3);">
+            <div class="stat-number-large" style="background: linear-gradient(135deg, #ec4899, #db2777); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">5+</div>
+            <div style="font-size: 1.1rem; font-weight: 600;">Páginas</div>
+            <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 5px;">Interface completa</div>
+        </div>
+    </div>
+</div>
+
+<!-- Características Principais -->
+<div class="card">
+    <h3 style="font-size: 1.8rem; margin-bottom: 30px;">
+        <i class="fas fa-star"></i> Características Principais
+    </h3>
+    <div class="timeline">
+        <% features.forEach(function(feature, index) { 
+            const icons = ['✨', '⚡', '🎨', '🔒'];
+            const icon = icons[index] || '✅';
+        %>
+        <div class="timeline-item">
+            <div class="timeline-icon">
+                <%= icon %>
+            </div>
+            <h4 style="font-size: 1.3rem; margin-bottom: 10px; font-weight: 700;"><%= feature %></h4>
+            <p style="opacity: 0.8; line-height: 1.6;">Sistema implementado com as melhores práticas e padrões de desenvolvimento.</p>
+        </div>
+        <% }); %>
+    </div>
+</div>
+
+<!-- Tecnologias Utilizadas -->
+<div class="card">
+    <h3 style="font-size: 1.8rem; margin-bottom: 30px; text-align: center;">
+        <i class="fas fa-code"></i> Tecnologias Utilizadas
+    </h3>
+    <div class="tech-grid">
+        <% 
+        const techIcons = {
+            'Node.js': '🟢',
+            'Express.js': '⚡',
+            'MongoDB': '🍃',
+            'HTML5/CSS3/JavaScript': '🎨'
+        };
+        technologies.forEach(function(tech) { 
+        %>
+        <div class="tech-item">
+            <div class="tech-item-icon"><%= techIcons[tech] || '💎' %></div>
+            <div style="font-weight: 700; font-size: 1.2rem; margin-bottom: 8px;"><%= tech %></div>
+            <div style="font-size: 0.85rem; opacity: 0.7;">Tecnologia moderna</div>
+        </div>
+        <% }); %>
+    </div>
+</div>
+
+<!-- Objetivos de Aprendizado -->
+<div class="card feature-highlight">
+    <h3 style="font-size: 1.8rem; margin-bottom: 30px; position: relative; z-index: 1;">
+        <i class="fas fa-graduation-cap"></i> Objetivos de Aprendizado
+    </h3>
+    <div style="position: relative; z-index: 1;">
+        <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;">
+            <div class="info-badge" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.2)); border-color: rgba(34, 197, 94, 0.4);">
+                <div class="info-badge-icon" style="background: rgba(34, 197, 94, 0.3); color: #22c55e;">
+                    ✅
+                </div>
+                <div style="text-align: left;">
+                    <div style="font-weight: 600;">Aplicativos Híbridos</div>
+                    <div style="font-size: 0.85rem; opacity: 0.7;">Conceitos fundamentais</div>
+                </div>
+            </div>
+            <div class="info-badge" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.2)); border-color: rgba(59, 130, 246, 0.4);">
+                <div class="info-badge-icon" style="background: rgba(59, 130, 246, 0.3); color: #3b82f6;">
+                    ✅
+                </div>
+                <div style="text-align: left;">
+                    <div style="font-weight: 600;">Node.js</div>
+                    <div style="font-size: 0.85rem; opacity: 0.7;">Ambiente configurado</div>
+                </div>
+            </div>
+            <div class="info-badge" style="background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(124, 58, 237, 0.2)); border-color: rgba(167, 139, 250, 0.4);">
+                <div class="info-badge-icon" style="background: rgba(167, 139, 250, 0.3); color: #a78bfa;">
+                    ✅
+                </div>
+                <div style="text-align: left;">
+                    <div style="font-weight: 600;">Express.js</div>
+                    <div style="font-size: 0.85rem; opacity: 0.7;">Servidor criado</div>
+                </div>
+            </div>
+            <div class="info-badge" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(219, 39, 119, 0.2)); border-color: rgba(236, 72, 153, 0.4);">
+                <div class="info-badge-icon" style="background: rgba(236, 72, 153, 0.3); color: #ec4899;">
+                    ✅
+                </div>
+                <div style="text-align: left;">
+                    <div style="font-weight: 600;">Sistema de Rotas</div>
+                    <div style="font-size: 0.85rem; opacity: 0.7;">Implementado</div>
+                </div>
+            </div>
+            <div class="info-badge" style="background: linear-gradient(135deg, rgba(251, 146, 60, 0.2), rgba(249, 115, 22, 0.2)); border-color: rgba(251, 146, 60, 0.4);">
+                <div class="info-badge-icon" style="background: rgba(251, 146, 60, 0.3); color: #fb923c;">
+                    ✅
+                </div>
+                <div style="text-align: left;">
+                    <div style="font-weight: 600;">Banco de Dados</div>
+                    <div style="font-size: 0.85rem; opacity: 0.7;">Conexão opcional</div>
+                </div>
+            </div>
+            <div class="info-badge" style="background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(6, 182, 212, 0.2)); border-color: rgba(34, 211, 238, 0.4);">
+                <div class="info-badge-icon" style="background: rgba(34, 211, 238, 0.3); color: #22d3ee;">
+                    ✅
+                </div>
+                <div style="text-align: left;">
+                    <div style="font-weight: 600;">API REST</div>
+                    <div style="font-size: 0.85rem; opacity: 0.7;">Completa e funcional</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Próximos Passos -->
+<div class="card" style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.15)); border: 2px solid rgba(251, 191, 36, 0.3);">
+    <h3 style="font-size: 1.8rem; margin-bottom: 30px;">
+        <i class="fas fa-rocket"></i> Próximos Passos
+    </h3>
+    <p style="font-size: 1.1rem; margin-bottom: 25px; opacity: 0.95;">Na próxima aula, vamos expandir ainda mais as funcionalidades:</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+        <div style="background: rgba(255, 255, 255, 0.08); padding: 25px; border-radius: 16px; border-left: 4px solid #fbbf24;">
+            <div style="font-size: 2rem; margin-bottom: 15px;">🔐</div>
+            <h4 style="font-size: 1.2rem; margin-bottom: 10px;">Autenticação</h4>
+            <p style="opacity: 0.8; line-height: 1.6;">Sistema completo de login e registro de usuários</p>
+        </div>
+        <div style="background: rgba(255, 255, 255, 0.08); padding: 25px; border-radius: 16px; border-left: 4px solid #3b82f6;">
+            <div style="font-size: 2rem; margin-bottom: 15px;">💾</div>
+            <h4 style="font-size: 1.2rem; margin-bottom: 10px;">CRUD Avançado</h4>
+            <p style="opacity: 0.8; line-height: 1.6;">Operações completas no banco de dados</p>
+        </div>
+        <div style="background: rgba(255, 255, 255, 0.08); padding: 25px; border-radius: 16px; border-left: 4px solid #ec4899;">
+            <div style="font-size: 2rem; margin-bottom: 15px;">✅</div>
+            <h4 style="font-size: 1.2rem; margin-bottom: 10px;">Validações</h4>
+            <p style="opacity: 0.8; line-height: 1.6;">Validação robusta de dados e formulários</p>
+        </div>
+        <div style="background: rgba(255, 255, 255, 0.08); padding: 25px; border-radius: 16px; border-left: 4px solid #22c55e;">
+            <div style="font-size: 2rem; margin-bottom: 15px;">🧪</div>
+            <h4 style="font-size: 1.2rem; margin-bottom: 10px;">Testes</h4>
+            <p style="opacity: 0.8; line-height: 1.6;">Testes automatizados e qualidade de código</p>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="card" style="text-align: center;">
+    <h3 style="font-size: 1.8rem; margin-bottom: 20px;">
+        <i class="fas fa-graduation-cap"></i> Continue Aprendendo
+    </h3>
+    <p style="font-size: 1.1rem; margin-bottom: 30px; opacity: 0.95;">
+        Explore todas as funcionalidades e continue desenvolvendo suas habilidades!
+    </p>
+    <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+        <a href="/tarefas" class="btn" style="background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);">
+            <i class="fas fa-tasks"></i> Gerenciar Tarefas
+        </a>
+        <a href="/dashboard" class="btn" style="background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);">
+            <i class="fas fa-chart-pie"></i> Ver Dashboard
+        </a>
+    </div>
+</div>

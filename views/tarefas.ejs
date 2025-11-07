@@ -1,0 +1,724 @@
+<style>
+/* Estilos específicos da página de tarefas */
+.task-header {
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.3) 0%, rgba(236, 72, 153, 0.3) 100%);
+    padding: 40px;
+    border-radius: 24px;
+    margin-bottom: 35px;
+    border: 2px solid rgba(167, 139, 250, 0.4);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.task-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(167, 139, 250, 0.15) 0%, transparent 70%);
+    animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.task-header h2 {
+    position: relative;
+    z-index: 1;
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, #ffffff, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0 0 15px 0;
+    font-weight: 900;
+}
+
+.task-header p {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    opacity: 0.95;
+    font-size: 1.1rem;
+}
+
+.task-form {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 25px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #60a5fa;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.priority-selector {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.priority-option {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.priority-option:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.priority-option.active {
+    background: rgba(96, 165, 250, 0.3);
+    border-color: #60a5fa;
+}
+
+.priority-alta.active { background: rgba(239, 68, 68, 0.3); border-color: #ef4444; }
+.priority-media.active { background: rgba(251, 191, 36, 0.3); border-color: #fbbf24; }
+.priority-baixa.active { background: rgba(34, 197, 94, 0.3); border-color: #22c55e; }
+
+.btn-primary {
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+    color: white;
+    padding: 14px 32px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+.tasks-list {
+    display: grid;
+    gap: 15px;
+}
+
+.task-item {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 20px;
+    border-radius: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.task-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.task-item.completed {
+    opacity: 0.7;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.task-item.completed .task-title {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.task-priority-badge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+}
+
+.task-priority-badge.alta { background: #ef4444; }
+.task-priority-badge.media { background: #fbbf24; }
+.task-priority-badge.baixa { background: #22c55e; }
+
+.task-content {
+    padding-left: 15px;
+}
+
+.task-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.task-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+    flex: 1;
+}
+
+.task-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.task-checkbox {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    accent-color: #22c55e;
+}
+
+.task-description {
+    color: rgba(255, 255, 255, 0.7);
+    margin: 10px 0;
+    line-height: 1.5;
+}
+
+.task-meta {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);
+}
+
+.btn-delete:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+    padding: 25px;
+    border-radius: 20px;
+    text-align: center;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(167, 139, 250, 0.2) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: all 0.5s ease;
+}
+
+.stat-card:hover::before {
+    width: 200px;
+    height: 200px;
+}
+
+.stat-card:hover {
+    transform: translateY(-8px) scale(1.05);
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(236, 72, 153, 0.2));
+    box-shadow: 0 20px 50px rgba(167, 139, 250, 0.5);
+    border-color: rgba(167, 139, 250, 0.5);
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #a78bfa, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-label {
+    font-size: 1rem;
+    opacity: 0.9;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #60a5fa;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    opacity: 0.7;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.task-item {
+    animation: slideIn 0.3s ease;
+}
+</style>
+
+<div class="task-header">
+    <div style="font-size: 4rem; margin-bottom: 20px; animation: bounce 2s ease-in-out infinite;">📋</div>
+    <h2>Gerenciador de Tarefas</h2>
+    <p>Organize suas tarefas com prioridades e acompanhe seu progresso</p>
+</div>
+
+<!-- Estatísticas -->
+<div class="stats-grid" id="statsGrid">
+    <div class="stat-card">
+        <div class="stat-number" style="color: #60a5fa;" id="statTotal">0</div>
+        <div class="stat-label">Total de Tarefas</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" style="color: #22c55e;" id="statConcluidas">0</div>
+        <div class="stat-label">Concluídas</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" style="color: #fbbf24;" id="statPendentes">0</div>
+        <div class="stat-label">Pendentes</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" style="color: #a78bfa;" id="statPercentual">0%</div>
+        <div class="stat-label">Progresso</div>
+    </div>
+</div>
+
+<!-- Formulário de Nova Tarefa -->
+<div class="card">
+    <h3 style="margin-bottom: 20px;">➕ Nova Tarefa</h3>
+    <form id="taskForm" class="task-form">
+        <div class="form-group">
+            <label for="titulo">Título da Tarefa *</label>
+            <input 
+                type="text" 
+                id="titulo" 
+                name="titulo" 
+                placeholder="Digite o título da tarefa..."
+                required
+            >
+        </div>
+        
+        <div class="form-group">
+            <label for="descricao">Descrição</label>
+            <textarea 
+                id="descricao" 
+                name="descricao" 
+                placeholder="Adicione detalhes sobre a tarefa... (opcional)"
+            ></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label>Prioridade</label>
+            <div class="priority-selector">
+                <div class="priority-option priority-alta" data-priority="alta">
+                    🔴 Alta
+                </div>
+                <div class="priority-option priority-media active" data-priority="media">
+                    🟡 Média
+                </div>
+                <div class="priority-option priority-baixa" data-priority="baixa">
+                    🟢 Baixa
+                </div>
+            </div>
+            <input type="hidden" id="prioridade" name="prioridade" value="media">
+        </div>
+        
+        <button type="submit" class="btn-primary">
+            ✨ Adicionar Tarefa
+        </button>
+    </form>
+</div>
+
+<!-- Lista de Tarefas -->
+<div class="card">
+    <h3 style="margin-bottom: 20px;">📝 Minhas Tarefas</h3>
+    <div id="tasksContainer">
+        <div style="text-align: center; padding: 40px;">
+            <div class="loading-spinner"></div>
+            <p style="margin-top: 15px;">Carregando tarefas...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Estado global
+let selectedPriority = 'media';
+let tarefas = [];
+
+// ============================================================================
+// INICIALIZAÇÃO
+// ============================================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    setupPrioritySelector();
+    setupTaskForm();
+    loadTasks();
+});
+
+// ============================================================================
+// SELETOR DE PRIORIDADE
+// ============================================================================
+
+function setupPrioritySelector() {
+    const priorityOptions = document.querySelectorAll('.priority-option');
+    const priorityInput = document.getElementById('prioridade');
+    
+    priorityOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            priorityOptions.forEach(opt => opt.classList.remove('active'));
+            this.classList.add('active');
+            selectedPriority = this.dataset.priority;
+            priorityInput.value = selectedPriority;
+        });
+    });
+}
+
+// ============================================================================
+// FORMULÁRIO DE NOVA TAREFA
+// ============================================================================
+
+function setupTaskForm() {
+    const form = document.getElementById('taskForm');
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const titulo = document.getElementById('titulo').value.trim();
+        const descricao = document.getElementById('descricao').value.trim();
+        const prioridade = document.getElementById('prioridade').value;
+        
+        if (!titulo) {
+            alert('Por favor, preencha o título da tarefa!');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/tarefas', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    titulo,
+                    descricao,
+                    prioridade
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Limpar formulário
+                form.reset();
+                document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('active'));
+                document.querySelector('[data-priority="media"]').classList.add('active');
+                selectedPriority = 'media';
+                
+                // Recarregar lista
+                loadTasks();
+                
+                // Feedback visual
+                showNotification('✅ Tarefa adicionada com sucesso!', 'success');
+            } else {
+                showNotification('❌ Erro: ' + result.error, 'error');
+            }
+        } catch (error) {
+            console.error('Erro ao criar tarefa:', error);
+            showNotification('❌ Erro ao criar tarefa!', 'error');
+        }
+    });
+}
+
+// ============================================================================
+// CARREGAR TAREFAS
+// ============================================================================
+
+async function loadTasks() {
+    try {
+        const response = await fetch('/api/tarefas');
+        const result = await response.json();
+        
+        if (result.success) {
+            tarefas = result.data;
+            renderTasks(tarefas);
+            updateStats(result);
+        }
+    } catch (error) {
+        console.error('Erro ao carregar tarefas:', error);
+        document.getElementById('tasksContainer').innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">⚠️</div>
+                <h3>Erro ao carregar tarefas</h3>
+                <p>Tente recarregar a página</p>
+            </div>
+        `;
+    }
+}
+
+// ============================================================================
+// RENDERIZAR TAREFAS
+// ============================================================================
+
+function renderTasks(tasks) {
+    const container = document.getElementById('tasksContainer');
+    
+    if (tasks.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">📝</div>
+                <h3>Nenhuma tarefa ainda</h3>
+                <p>Comece adicionando sua primeira tarefa acima!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const tasksHtml = tasks.map(task => {
+        const priorityEmoji = {
+            alta: '🔴',
+            media: '🟡',
+            baixa: '🟢'
+        };
+        
+        const dataCriacao = new Date(task.dataCriacao).toLocaleDateString('pt-BR');
+        
+        return `
+            <div class="task-item ${task.concluida ? 'completed' : ''}" data-task-id="${task.id}">
+                <div class="task-priority-badge ${task.prioridade}"></div>
+                <div class="task-content">
+                    <div class="task-header-row">
+                        <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                            <input 
+                                type="checkbox" 
+                                class="task-checkbox" 
+                                ${task.concluida ? 'checked' : ''}
+                                onchange="toggleTaskComplete(${task.id}, this.checked)"
+                            >
+                            <h4 class="task-title">${escapeHtml(task.titulo)}</h4>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn-delete" onclick="deleteTask(${task.id})">
+                                🗑️ Excluir
+                            </button>
+                        </div>
+                    </div>
+                    
+                    ${task.descricao ? `<p class="task-description">${escapeHtml(task.descricao)}</p>` : ''}
+                    
+                    <div class="task-meta">
+                        <span>${priorityEmoji[task.prioridade]} ${task.prioridade.charAt(0).toUpperCase() + task.prioridade.slice(1)}</span>
+                        <span>📅 ${dataCriacao}</span>
+                        <span>${task.concluida ? '✅ Concluída' : '⏳ Pendente'}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = `<div class="tasks-list">${tasksHtml}</div>`;
+}
+
+// ============================================================================
+// ATUALIZAR ESTATÍSTICAS
+// ============================================================================
+
+function updateStats(result) {
+    document.getElementById('statTotal').textContent = result.total;
+    document.getElementById('statConcluidas').textContent = result.concluidas;
+    document.getElementById('statPendentes').textContent = result.pendentes;
+    
+    const percentual = result.total > 0 
+        ? Math.round((result.concluidas / result.total) * 100) 
+        : 0;
+    document.getElementById('statPercentual').textContent = percentual + '%';
+}
+
+// ============================================================================
+// MARCAR/DESMARCAR TAREFA
+// ============================================================================
+
+async function toggleTaskComplete(id, completed) {
+    try {
+        const response = await fetch(`/api/tarefas/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                concluida: completed
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            loadTasks();
+            showNotification(
+                completed ? '✅ Tarefa concluída!' : '🔄 Tarefa reaberta!',
+                'success'
+            );
+        }
+    } catch (error) {
+        console.error('Erro ao atualizar tarefa:', error);
+        showNotification('❌ Erro ao atualizar tarefa!', 'error');
+        loadTasks(); // Recarregar para desfazer a mudança visual
+    }
+}
+
+// ============================================================================
+// EXCLUIR TAREFA
+// ============================================================================
+
+async function deleteTask(id) {
+    if (!confirm('Tem certeza que deseja excluir esta tarefa?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/tarefas/${id}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            loadTasks();
+            showNotification('🗑️ Tarefa excluída com sucesso!', 'success');
+        }
+    } catch (error) {
+        console.error('Erro ao excluir tarefa:', error);
+        showNotification('❌ Erro ao excluir tarefa!', 'error');
+    }
+}
+
+// ============================================================================
+// FUNÇÕES AUXILIARES
+// ============================================================================
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#60a5fa'};
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        z-index: 9999;
+        animation: slideIn 0.3s ease;
+        font-weight: 500;
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+</script>
