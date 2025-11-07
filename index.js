@@ -8,6 +8,9 @@ require('dotenv').config();
 // Importa funções de conexão com banco de dados
 const { connectToDatabase, getConnectionStatus } = require('./config/database');
 
+// Importa o roteador principal (com /tarefas, /projetos, etc.)
+const mainRouter = require('./routes/pages');
+
 // Inicializa a aplicação Express
 const app = express();
 
@@ -32,31 +35,24 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 /**
- * ROTAS PRINCIPAIS
- * =================
- * Aqui ficam as rotas principais do app. Você pode ajustar conforme
- * sua estrutura (ex: importar de /routes).
+ * ROTAS
+ * ======
+ * Primeiro, usa o roteador principal para as páginas e depois
+ * adiciona as rotas locais complementares.
  */
 
-// Página inicial
-app.get('/', (req, res) => {
-  res.render('index', { title: 'Página Inicial - ExploraSaquá' });
-});
-
-// Dashboard
-app.get('/dashboard', (req, res) => {
-  res.render('dashboard', { title: 'Dashboard' });
-});
-
-// Categorias
-app.get('/categorias', (req, res) => {
-  res.render('categoria', { title: 'Categorias' });
-});
+// Usa o roteador principal
+app.use('/', mainRouter);
 
 // Rota para verificar status da conexão com MongoDB
 app.get('/status-db', (req, res) => {
   const status = getConnectionStatus();
   res.json(status);
+});
+
+// Middleware para tratar rotas inexistentes (404)
+app.use((req, res) => {
+  res.status(404).render('404', { titulo: 'Página não encontrada' });
 });
 
 /**
