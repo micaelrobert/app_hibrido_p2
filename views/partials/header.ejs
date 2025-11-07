@@ -1,18 +1,26 @@
-<div class="header">
-    <h1>🚀 Aplicativo Híbrido</h1>
-    <p><%= description %></p>
-</div>
-
-<nav class="nav">
-    <ul>
-        <li><a href="/">🏠 Início</a></li>
-        <li><a href="/tarefas">📋 Tarefas</a></li>
-        <li><a href="/categorias">📁 Categorias</a></li>
-        <li><a href="/projetos">🎯 Projetos</a></li>
-        <li><a href="/dashboard">📊 Dashboard</a></li>
-        <li><a href="/sobre">ℹ️ Sobre</a></li>
-        <li><a href="/contato">📞 Contato</a></li>
+<header>
+  <nav class="navbar">
+    <a href="/" class="nav-brand">AppHibrido_v2</a>
+    
+    <div class="menu-toggle" id="menu-toggle">&#9776;</div> <ul class="nav-list" id="nav-list">
+      <li class="nav-item">
+        <a href="/" class="nav-link <%= titulo === 'Página Inicial' ? 'active' : '' %>">Início</a>
+      </li>
+      <li class="nav-item">
+        <a href="/tarefas" class="nav-link <%= titulo === 'Lista de Tarefas' ? 'active' : '' %>">Tarefas</a>
+      </li>
+      <li class="nav-item">
+        <a href="/projetos" class="nav-link <%= titulo === 'Projetos' ? 'active' : '' %>">Projetos</a>
+      </li>
+      <li class="nav-item">
+        <a href="/dashboard" class="nav-link <%= titulo === 'Dashboard' ? 'active' : '' %>">Dashboard</a>
+      </li>
+      <li class="nav-item">
+        <a href="/sobre" class="nav-link <%= titulo === 'Sobre' ? 'active' : '' %>">Sobre</a>
+      </li>
+      <li class="nav-item">
+        <a href="/contato" class="nav-link <%= titulo === 'Contato' ? 'active' : '' %>">Contato</a>
+      </li>
     </ul>
-</nav>
-
-
+  </nav>
+</header>
