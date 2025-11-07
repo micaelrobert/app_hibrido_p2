@@ -1,23 +1,40 @@
 /* Estilos Base e Tema Hacker */
 body {
-  background-color: #0d021f; /* Fundo roxo bem escuro */
-  color: #00ff00; /* Texto verde neon */
+  background-color: #0d021f;
+  color: #00ff00;
   font-family: 'Courier New', Courier, monospace;
   margin: 0;
-  padding: 0;
+  /* Adiciona o "espaço de borda" fora da tela */
+  padding: 20px; 
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+  /* Garante que o padding não estoure a tela */
+  box-sizing: border-box; 
 }
 
-.main-content {
-  flex: 1;
-  padding: 20px;
+/* O novo container da "tela de tubo" */
+.crt-wrapper {
+  flex: 1; /* Ocupa o espaço disponível */
+  display: flex;
+  flex-direction: column;
+  max-width: 1200px; /* Largura máxima da "tela" */
+  margin: 0 auto; /* Centraliza a "tela" */
   width: 100%;
-  max-width: 1000px;
-  margin: 20px auto;
+  border: 2px solid #9f00ff; /* Borda da "tela" */
+  box-shadow: 0 0 25px rgba(159, 0, 255, 0.6), inset 0 0 15px rgba(159, 0, 255, 0.4);
+  border-radius: 15px; /* Efeito de borda arredondada de CRT */
+  overflow: hidden; /* Prende o header/footer dentro das bordas */
+  background-color: rgba(13, 2, 31, 0.9); /* Fundo da "tela" */
+}
+
+/* O .main-content-wrapper agora tem padding */
+.main-content-wrapper {
+  flex: 1; /* Faz o conteúdo principal empurrar o footer para baixo */
+  padding: 20px;
   box-sizing: border-box;
+  overflow-y: auto; /* Adiciona scroll se o conteúdo principal for muito grande */
 }
 
 /* Efeito Glitch no Título */
@@ -70,61 +87,141 @@ body {
   80% { clip-path: inset(60% 0 30% 0); }
 }
 
-/* Cabeçalho e Navegação */
+/* === ESTILOS DA NAVBAR === */
 .header-hacker {
-  background-color: #1a0033; /* Roxo escuro */
-  border-bottom: 2px solid #9f00ff; /* Linha roxa neon */
+  background-color: #1a0033;
+  border-bottom: 2px solid #9f00ff;
   padding: 10px 20px;
   box-shadow: 0 0 20px rgba(159, 0, 255, 0.7);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-sizing: border-box; 
+}
+
+.nav-hacker-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
-.logo a {
+.nav-brand.logo {
   font-size: 1.8rem;
   color: #00ff00;
   text-decoration: none;
   font-weight: bold;
   text-transform: uppercase;
+  text-shadow: 0 0 10px #00ff00;
+  transition: all 0.3s ease;
+}
+.nav-brand.logo:hover {
+  color: #fff;
+  text-shadow: 0 0 15px #fff, 0 0 25px #9f00ff;
 }
 
-.nav-hacker ul {
+.nav-hacker-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
+  gap: 15px;
 }
 
-.nav-hacker li {
-  margin-left: 20px;
+.nav-hacker-list .nav-item {
+  margin: 0;
 }
 
-.nav-hacker a {
+.nav-hacker-list .nav-link {
   color: #00ff00;
   text-decoration: none;
   font-size: 1.1rem;
-  padding: 5px 10px;
+  padding: 8px 12px;
   border: 1px solid transparent;
   transition: all 0.3s ease;
+  border-radius: 3px;
 }
 
-.nav-hacker a:hover,
-.nav-hacker a.active {
+.nav-hacker-list .nav-link:hover,
+.nav-hacker-list .nav-link.active {
   color: #ffffff;
   background-color: #9f00ff;
   border-color: #00ff00;
-  box-shadow: 0 0 10px #9f00ff;
+  box-shadow: 0 0 10px #9f00ff, inset 0 0 5px rgba(0, 255, 0, 0.5);
   text-shadow: 0 0 5px #fff;
+}
+
+.menu-toggle {
+  display: none; /* Oculto em telas grandes */
+  font-size: 2rem;
+  color: #00ff00;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+/* === Responsividade da Navbar === */
+@media (max-width: 768px) {
+  .nav-hacker-container {
+    flex-wrap: wrap; 
+  }
+
+  .menu-toggle {
+    display: block; 
+  }
+
+  .nav-hacker-list {
+    display: none; 
+    flex-direction: column;
+    width: 100%;
+    background-color: rgba(13, 2, 31, 0.95);
+    border-top: 1px solid #9f00ff;
+    margin-top: 10px;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .nav-hacker-list.active {
+    display: flex; 
+  }
+
+  .nav-hacker-list .nav-item {
+    width: 100%;
+    text-align: center;
+    border-bottom: 1px dashed rgba(159, 0, 255, 0.5);
+  }
+  .nav-hacker-list .nav-item:last-child {
+    border-bottom: none;
+  }
+
+  .nav-hacker-list .nav-link {
+    display: block;
+    padding: 15px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Estilo Terminal */
 .container-lista {
-  background-color: rgba(13, 2, 31, 0.85); /* Fundo do terminal */
+  background-color: rgba(13, 2, 31, 0.85); 
   border: 2px solid #9f00ff;
   box-shadow: 0 0 25px rgba(159, 0, 255, 0.6), inset 0 0 15px rgba(159, 0, 255, 0.4);
   border-radius: 5px;
-  overflow: hidden;
+  /* Centralização e max-width foram movidos para .main-content-wrapper e .crt-wrapper */
 }
 
 .terminal-header {
@@ -229,8 +326,6 @@ body {
   box-shadow: 0 0 20px #00ff00;
 }
 
-/* === NOVOS ESTILOS === */
-
 /* Lista de Itens (Tarefas/Projetos) */
 .lista-hacker {
   list-style: none;
@@ -239,8 +334,8 @@ body {
 }
 
 .item-lista {
-  background-color: rgba(26, 0, 51, 0.3); /* Fundo roxo sutil */
-  border: 1px solid #4a00e0; /* Borda roxa mais escura */
+  background-color: rgba(26, 0, 51, 0.3);
+  border: 1px solid #4a00e0;
   padding: 15px;
   margin-bottom: 10px;
   display: flex;
@@ -249,15 +344,13 @@ body {
   flex-wrap: wrap;
   gap: 10px;
   border-radius: 3px;
-  
-  /* Animação de Hover */
   transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
 .item-lista:hover {
-  transform: scale(1.01); /* Sutil aumento */
+  transform: scale(1.01);
   background-color: rgba(26, 0, 51, 0.6);
-  box-shadow: 0 0 15px rgba(159, 0, 255, 0.7); /* Brilho roxo */
+  box-shadow: 0 0 15px rgba(159, 0, 255, 0.7);
   border-color: #9f00ff;
 }
 
@@ -273,27 +366,27 @@ body {
 }
 .item-detalhe {
   font-size: 0.9rem;
-  color: #00ffff; /* Ciano para detalhes */
+  color: #00ffff;
 }
 .item-data {
   font-size: 0.8rem;
-  color: rgba(0, 255, 0, 0.6); /* Verde mais fraco */
+  color: rgba(0, 255, 0, 0.6);
 }
 
 /* Estilos de Prioridade */
 .item-lista.prioridade-baixa {
-  border-left: 5px solid #00ff00; /* Verde */
+  border-left: 5px solid #00ff00;
 }
 .item-lista.prioridade-media {
-  border-left: 5px solid #ffff00; /* Amarelo */
+  border-left: 5px solid #ffff00;
 }
 .item-lista.prioridade-alta {
-  border-left: 5px solid #ff0000; /* Vermelho */
+  border-left: 5px solid #ff0000;
 }
 
 /* Estilo de Item Concluído */
 .item-lista.concluido {
-  background-color: rgba(10, 30, 10, 0.5); /* Fundo verde escuro */
+  background-color: rgba(10, 30, 10, 0.5);
   border-color: #00ff00;
   opacity: 0.7;
 }
@@ -337,10 +430,9 @@ body {
   box-shadow: 0 0 10px #ff0000;
 }
 
-/* Animação de Clique nos Botões */
 .btn-hacker:active,
 .btn-acao:active {
-  transform: scale(0.96); /* Sutil encolhimento */
+  transform: scale(0.96);
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
@@ -357,7 +449,7 @@ body {
 }
 
 .stat-card {
-  background: #1a0033; /* Roxo escuro */
+  background: #1a0033;
   border: 1px solid #9f00ff;
   padding: 20px;
   border-radius: 5px;
@@ -373,7 +465,7 @@ body {
 }
 
 .card-subtitle {
-  color: #00ffff; /* Ciano */
+  color: #00ffff;
   margin-top: 20px;
   margin-bottom: 10px;
   font-size: 1.1rem;
@@ -404,147 +496,189 @@ body {
 .chart-container {
   margin-top: 20px;
   padding: 20px;
-  height: 400px; /* Altura fixa para o canvas */
+  height: 400px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 #progressoTotalChart {
-  max-height: 300px; /* Altura máxima do gráfico */
+  max-height: 300px; 
   width: 100% !important;
 }
-/* === ESTILOS DA NAVBAR (NOVOS) === */
 
-/* Container principal da navbar */
-.header-hacker {
-  background-color: #1a0033; /* Roxo escuro */
-  border-bottom: 2px solid #9f00ff; /* Linha roxa neon */
-  padding: 10px 20px;
+/* === ESTILOS DO FOOTER === */
+.footer-hacker {
+  background-color: #1a0033;
+  border-top: 2px solid #9f00ff;
+  padding: 20px;
+  text-align: center;
+  margin-top: 40px; 
   box-shadow: 0 0 20px rgba(159, 0, 255, 0.7);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  width: 100%;
-  box-sizing: border-box; 
+  /* width e box-sizing removidos */
 }
 
-.nav-hacker-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  max-width: 1000px; /* Alinha com .main-content */
+.footer-content {
+  max-width: 1000px;
   margin: 0 auto;
-  box-sizing: border-box;
 }
 
-/* Logo/Marca */
-.nav-brand.logo {
-  font-size: 1.8rem;
+.footer-content p {
+  margin: 5px 0;
   color: #00ff00;
-  text-decoration: none;
-  font-weight: bold;
-  text-transform: uppercase;
-  text-shadow: 0 0 10px #00ff00;
-  transition: all 0.3s ease;
-}
-.nav-brand.logo:hover {
-  color: #fff;
-  text-shadow: 0 0 15px #fff, 0 0 25px #9f00ff;
+  text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
 }
 
-/* Lista de Links */
-.nav-hacker-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  gap: 15px;
+.footer-scanlines {
+  color: rgba(0, 255, 0, 0.4) !important;
+  font-size: 0.9rem;
 }
 
-.nav-hacker-list .nav-item {
-  margin: 0;
-}
-
-.nav-hacker-list .nav-link {
-  color: #00ff00;
-  text-decoration: none;
+.glitch-footer {
   font-size: 1.1rem;
-  padding: 8px 12px;
-  border: 1px solid transparent;
-  transition: all 0.3s ease;
-  border-radius: 3px;
-}
-
-/* Efeito Hover e Active */
-.nav-hacker-list .nav-link:hover,
-.nav-hacker-list .nav-link.active {
-  color: #ffffff;
-  background-color: #9f00ff;
-  border-color: #00ff00;
-  box-shadow: 0 0 10px #9f00ff, inset 0 0 5px rgba(0, 255, 0, 0.5);
-  text-shadow: 0 0 5px #fff;
-}
-
-/* === Botão Mobile (Menu Hamburguer) === */
-.menu-toggle {
-  display: none; /* Oculto em telas grandes */
-  font-size: 2rem;
   color: #00ff00;
-  cursor: pointer;
-  background: none;
-  border: none;
+  text-transform: uppercase;
+  position: relative;
+  display: inline-block;
 }
 
-/* === Responsividade da Navbar === */
-@media (max-width: 768px) {
-  .nav-hacker-container {
-    flex-wrap: wrap; /* Permite que o menu quebre a linha */
-  }
-
-  .menu-toggle {
-    display: block; /* Mostra o botão em telas pequenas */
-  }
-
-  .nav-hacker-list {
-    display: none; /* Esconde a lista por padrão */
-    flex-direction: column;
-    width: 100%;
-    background-color: rgba(13, 2, 31, 0.95); /* Fundo roxo escuro */
-    border-top: 1px solid #9f00ff;
-    margin-top: 10px;
-    animation: fadeIn 0.3s ease-in-out;
-  }
-
-  .nav-hacker-list.active {
-    display: flex; /* Mostra a lista quando ativa */
-  }
-
-  .nav-hacker-list .nav-item {
-    width: 100%;
-    text-align: center;
-    border-bottom: 1px dashed rgba(159, 0, 255, 0.5);
-  }
-  .nav-hacker-list .nav-item:last-child {
-    border-bottom: none;
-  }
-
-  .nav-hacker-list .nav-link {
-    display: block;
-    padding: 15px;
-    width: 100%;
-    box-sizing: border-box;
-  }
+.glitch-footer::before,
+.glitch-footer::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #1a0033;
+  overflow: hidden;
 }
 
-@keyframes fadeIn {
+.glitch-footer::before {
+  left: 1px;
+  text-shadow: -1px 0 #ff00ff;
+  animation: glitch-anim-footer 3s infinite linear alternate-reverse;
+}
+
+.glitch-footer::after {
+  left: -1px;
+  text-shadow: -1px 0 #00ffff;
+  animation: glitch-anim-footer-2 4s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-footer {
+  0%, 100% { clip-path: inset(40% 0 40% 0); }
+  50% { clip-path: inset(20% 0 60% 0); }
+}
+
+@keyframes glitch-anim-footer-2 {
+  0%, 100% { clip-path: inset(70% 0 10% 0); }
+  50% { clip-path: inset(10% 0 80% 0); }
+}
+.margin-top {
+  margin-top: 2rem;        
+  display: block;           
+  margin-left: auto;        
+  margin-right: auto;       
+}
+/* === Chat Estilo Hacker === */
+.chat-hacker-container {
+  max-width: 800px;
+  margin: 50px auto;
+  border: 2px solid #9f00ff;
+  border-radius: 8px;
+  box-shadow: 0 0 25px rgba(159, 0, 255, 0.6), inset 0 0 15px rgba(159, 0, 255, 0.4);
+  background-color: rgba(13, 2, 31, 0.85);
+  padding: 20px;
+  font-family: 'Courier New', Courier, monospace;
+  animation: fadeInChat 1s ease-in-out;
+}
+
+.chat-terminal {
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px dashed #9f00ff;
+  padding: 15px;
+  color: #00ff00;
+  font-size: 1rem;
+  text-shadow: 0 0 5px #00ff00;
+  box-shadow: inset 0 0 10px rgba(159, 0, 255, 0.2);
+  margin-bottom: 15px;
+}
+
+.console-text {
+  margin: 5px 0;
+}
+
+.chat-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chat-input,
+.chat-textarea {
+  background-color: #000;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  padding: 10px;
+  font-family: 'Courier New', Courier, monospace;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.chat-textarea {
+  height: 100px;
+  resize: none;
+}
+
+.chat-input:focus,
+.chat-textarea:focus {
+  border-color: #9f00ff;
+  box-shadow: 0 0 15px #9f00ff;
+  outline: none;
+}
+
+.chat-send {
+  align-self: flex-end;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.chat-send:hover {
+  background-color: #00ff00;
+  color: #000;
+  box-shadow: 0 0 15px #00ff00;
+}
+
+/* Efeito "aparecer" suave */
+@keyframes fadeInChat {
   from {
     opacity: 0;
     transform: translateY(-10px);
-  }
+  } 
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Scroll estilo neon */
+.chat-messages::-webkit-scrollbar {
+  width: 8px;
+}
+.chat-messages::-webkit-scrollbar-track {
+  background: rgba(13, 2, 31, 0.6);
+}
+.chat-messages::-webkit-scrollbar-thumb {
+  background-color: #9f00ff;
+  border-radius: 4px;
+  box-shadow: 0 0 10px #9f00ff;
 }

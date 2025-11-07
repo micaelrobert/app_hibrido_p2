@@ -1,14 +1,26 @@
-<h1>Contato</h1>
+<h1 class="glitch" data-text="Contato">Contato</h1>
 <p>Para suporte ou informações, envie um sinal para o mainframe.</p>
 
-<form action="#">
-  <div class="form-group">
-    <label for="email">Seu Endereço de Rede (Email):</label>
-    <input type="text" id="email" name="email" placeholder="voce@dominio.com">
+<div class="chat-hacker-container">
+  <div class="chat-terminal">
+    <div class="chat-messages" id="chatMessages">
+      <p class="console-text">[SISTEMA] Conexão segura estabelecida...</p>
+      <p class="console-text">[SISTEMA] Digite sua mensagem abaixo para enviar ao mainframe:</p>
+    </div>
+
+    <form class="chat-form">
+      <input 
+        type="text" 
+        id="email" 
+        name="email" 
+        class="form-input chat-input" 
+        placeholder="Seu endereço de rede (email@dominio.com)">
+      <textarea 
+        id="mensagem" 
+        name="mensagem" 
+        class="form-input chat-textarea" 
+        placeholder="> Digite sua mensagem criptografada aqui..."></textarea>
+      <button type="submit" class="btn-hacker chat-send">> ENVIAR TRANSMISSÃO</button>
+    </form>
   </div>
-  <div class="form-group">
-    <label for="mensagem">Mensagem Criptografada:</label>
-    <textarea id="mensagem" name="mensagem" placeholder="Digite sua mensagem..."></textarea>
-  </div>
-  <button type="submit" class="btn">Enviar Transmissão</button>
-</form>
+</div>

@@ -14,7 +14,7 @@ const {
   criar,
   remover,
   atualizar,
-} = require('../services/ProjetoService'); // Note que stats não é importado aqui, pois está na rota unificada
+} = require('../services/ProjetoService'); 
 
 /**
  * Middleware de Log

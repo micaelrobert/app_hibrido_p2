@@ -10,13 +10,18 @@
 </head>
 <body>
 
-  <%- include('partials/header') %>
+  <div class="crt-wrapper"> 
 
-  <main class="container">
-    <%- body %>
-  </main>
+    <%- include('partials/header') %>
 
-  <script>
+    <main class="main-content-wrapper">
+      <%- body %>
+    </main>
+  
+    <%- include('partials/footer') %>
+
+  </div> <script>
+    // Script para o menu mobile
     document.addEventListener('DOMContentLoaded', () => {
       const menuToggle = document.getElementById('menu-toggle');
       const navList = document.getElementById('nav-list');
@@ -26,13 +31,7 @@
           navList.classList.toggle('active');
         });
       }
-      
     });
-    
-    
   </script>
-
-</body>
-</html>
 </body>
 </html>

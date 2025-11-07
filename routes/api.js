@@ -23,8 +23,6 @@ router.use('/mongodb/tarefas', mongodbApiRoutes);
 
 
 /**
- * (NOVO) Endpoint unificado para o Dashboard
- * ======================================
  * Rota: GET /api/dashboard-stats
  * Descrição: Busca estatísticas de Tarefas e Projetos
  */
@@ -50,11 +48,5 @@ router.get('/dashboard-stats', async (req, res) => {
   }
 });
 
-
-/*
- * NOTA: O arquivo que você colou (com 800+ linhas e arrays de memória)
- * foi substituído por este, que delega para os serviços
- * que usam o banco de dados real (Atlas).
- */
 
 module.exports = router;
