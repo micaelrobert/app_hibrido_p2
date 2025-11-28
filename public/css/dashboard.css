@@ -1,0 +1,104 @@
+/* Cursor e efeitos para números interativos */
+.stat-value.p-alta, .stat-value.p-media, .stat-value.p-baixa {
+  cursor: pointer;
+  text-decoration: underline;
+  transition: text-shadow 0.3s ease;
+}
+.stat-value.p-alta:hover { text-shadow: 0 0 10px #ff0000; }
+.stat-value.p-media:hover { text-shadow: 0 0 10px #ffff00; }
+.stat-value.p-baixa:hover { text-shadow: 0 0 10px #00ff00; }
+
+/* Layout Principal do Dashboard */
+.dashboard-grid {
+  display: grid;
+  /* Correção: minmax(280px) evita quebra em celulares pequenos */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Ocupa a largura total disponível */
+.full-width-card {
+  grid-column: 1 / -1;
+}
+
+/* Ajuste do container do gráfico */
+.chart-wrapper {
+  position: relative;
+  height: 250px; /* Um pouco mais alto para melhor leitura */
+  width: 100%;
+  margin-top: 15px;
+}
+
+/* Cabeçalho dos Cards */
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 5px;
+  flex-wrap: wrap; /* Permite quebra em telas muito pequenas */
+  gap: 10px;
+}
+
+/* Select estilo Terminal */
+.view-selector {
+  background: #000;
+  color: #00ff00;
+  border: 1px solid #00ff00;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  padding: 4px;
+  cursor: pointer;
+}
+.view-selector:focus { outline: none; box-shadow: 0 0 5px #00ff00; }
+
+/* --- GRID DE BUSCA (Responsivo) --- */
+.search-grid-layout {
+  display: flex; /* Flexbox é melhor aqui para alinhar itens variados */
+  flex-wrap: wrap; /* Permite cair para a linha de baixo */
+  gap: 15px;
+  align-items: flex-end;
+}
+
+/* Inputs de data ocupam espaço igual */
+.search-grid-layout .form-group {
+  flex: 1;
+  min-width: 200px; /* Garante tamanho mínimo legível */
+  margin: 0;
+}
+
+/* Grupo de botões */
+.search-buttons-group {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  min-width: 280px; /* Evita botões espremidos */
+}
+
+/* Botões com mesma largura */
+.search-btn {
+  flex: 1;
+  height: 42px; /* Altura para alinhar com inputs padrão */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+/* Responsividade Específica para Mobile */
+@media (max-width: 600px) {
+  .search-grid-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-buttons-group {
+    margin-top: 10px;
+  }
+  
+  .dashboard-container {
+    padding: 10px; /* Menos padding em mobile */
+  }
+}
