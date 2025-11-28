@@ -14,10 +14,9 @@ const listar = async () => {
   // Ordena por 'concluido' (false primeiro), depois por 'prioridade' (Alta, Media, Baixa) e depois 'dataCriacao' (mais recente)
   const prioridadeOrder = { Alta: 1, Media: 2, Baixa: 3 };
   
-  // --- ALTERAÇÃO ---
   // Adicionado .populate('projeto') para "juntar" os dados do projeto
   const tarefas = await Tarefa.find()
-    .populate('projeto') // <-- ADICIONADO AQUI
+    .populate('projeto')
     .sort({ concluido: 1, dataCriacao: -1 });
 
   // Ordenação personalizada para prioridade
@@ -37,7 +36,6 @@ const listar = async () => {
  * @returns {Promise<object>} Uma promessa que resolve para o documento da nova tarefa criada.
  */
 const criar = async (dadosTarefa) => {
-  // --- ALTERAÇÃO ---
   // Pega o campo 'projeto' do body
   const { nome, prioridade, projeto } = dadosTarefa;
   
@@ -50,6 +48,7 @@ const criar = async (dadosTarefa) => {
     prioridade,
     projeto: projeto || null, // Salva o ID do projeto, ou null se não for enviado
     concluido: false,
+    tags: [] // Inicializa o array de tags vazio (compatibilidade com a prova)
   });
   
   await novaTarefa.save();
@@ -99,52 +98,62 @@ const atualizar = async (id, dados) => {
   return tarefa;
 };
 
+// ============================================================================
+// 🧪 MÉTODOS EXIGIDOS NA PROVA 03
+// ============================================================================
 
 /**
- * Busca estatísticas de tarefas para o Dashboard.
- * @returns {Promise<object>} Um objeto com estatísticas (total, concluidas, pendentes, prioridades).
+ * Tarefa 1: Busca tarefas por prioridade (Case-insensitive)
+ */
+const buscarPorPrioridade = async (prioridade) => {
+  return await Tarefa.buscarPorPrioridade(prioridade);
+};
+
+/**
+ * Tarefa 2: Adiciona uma tag à tarefa (sem duplicatas)
+ */
+const adicionarTag = async (id, tag) => {
+  const tarefa = await Tarefa.findById(id);
+  if (!tarefa) throw new Error('Tarefa não encontrada.');
+  return await tarefa.adicionarTag(tag);
+};
+
+/**
+ * Tarefa 3: Busca tarefas criadas em um intervalo de datas
+ */
+const buscarPorIntervaloData = async (dataInicio, dataFim) => {
+  return await Tarefa.buscarPorIntervaloData(new Date(dataInicio), new Date(dataFim));
+};
+
+/**
+ * Tarefa 4: Marca a tarefa como urgente (Alta prioridade + tag 'urgente')
+ */
+const marcarComoUrgente = async (id) => {
+  const tarefa = await Tarefa.findById(id);
+  if (!tarefa) throw new Error('Tarefa não encontrada.');
+  return await tarefa.marcarComoUrgente();
+};
+
+/**
+ * Tarefa 5: Busca estatísticas agrupadas (Total + Por Prioridade)
+ * Substitui a lógica manual anterior pelo método de agregação do Model.
  */
 const stats = async () => {
   try {
-    const total = await Tarefa.countDocuments();
-    const concluidas = await Tarefa.countDocuments({ concluido: true });
-    const pendentes = total - concluidas;
-
-    // Conta as prioridades APENAS das tarefas pendentes
-    const prioridadesAgrupadas = await Tarefa.aggregate([
-      { $match: { concluido: false } },
-      { $group: { _id: '$prioridade', count: { $sum: 1 } } },
-      { $project: { _id: 0, prioridade: '$_id', count: 1 } }
-    ]);
-
-    // Mapeia os resultados para um objeto limpo, garantindo que todas as chaves existam
-    const prioridades = {
-      'Alta': 0,
-      'Media': 0,
-      'Baixa': 0
-    };
-
-    prioridadesAgrupadas.forEach(p => {
-      if (prioridades.hasOwnProperty(p.prioridade)) {
-        prioridades[p.prioridade] = p.count;
-      }
-    });
-
-    return {
-      total,
-      concluidas,
-      pendentes,
-      prioridades
-    };
+    // Chama o método estático criado no Model (Requisito da Tarefa 5)
+    const estatisticas = await Tarefa.obterEstatisticas();
+    return estatisticas;
   } catch (error) {
     console.error('[Erro TarefaService.stats]', error.message);
-    throw new Error('Falha ao calcular estatísticas de tarefas: ' + error.message);
+    throw new Error('Falha ao calcular estatísticas: ' + error.message);
   }
 };
 
+// ============================================================================
 
 /**
  * Busca estatísticas de tarefas pendentes agrupadas por projeto.
+ * (Funcionalidade original mantida)
  * @returns {Promise<Array>} Um array com { projetoNome, count }.
  */
 const statsPorProjeto = async () => {
@@ -181,15 +190,18 @@ const statsPorProjeto = async () => {
     throw new Error('Falha ao calcular estatísticas por projeto: ' + error.message);
   }
 };
-// ------------------------------------
 
-
-// Exporta as funções do serviço
+// Exporta todas as funções (Originais + Prova)
 module.exports = {
   listar,
   criar,
   remover,
   atualizar,
   stats,
-  statsPorProjeto 
+  statsPorProjeto,
+  // Novos métodos da prova
+  buscarPorPrioridade,
+  adicionarTag,
+  buscarPorIntervaloData,
+  marcarComoUrgente
 };

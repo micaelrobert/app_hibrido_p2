@@ -1,6 +1,35 @@
 <%- contentFor('body') %>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+
+<style>
+  .stat-value.p-alta, .stat-value.p-media, .stat-value.p-baixa {
+    cursor: pointer; text-decoration: underline; transition: text-shadow 0.3s ease;
+  }
+  .stat-value.p-alta:hover { text-shadow: 0 0 10px #ff0000; }
+  .stat-value.p-media:hover { text-shadow: 0 0 10px #ffff00; }
+  .stat-value.p-baixa:hover { text-shadow: 0 0 10px #00ff00; }
+  
+  /* Garante que os gráficos tenham altura */
+  .chart-wrapper {
+    position: relative;
+    height: 200px;
+    width: 100%;
+    margin-top: 15px;
+  }
+
+  /* Grid responsivo */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  /* Grid de busca ocupando linha inteira se possível */
+  .full-width-card {
+    grid-column: 1 / -1;
+  }
+</style>
 
 <div class="container-lista">
   <div class="terminal-header">
@@ -13,23 +42,26 @@
   </div>
 
   <div class="terminal-body dashboard-container">
-    <h1 class="glitch" data-text="[ Dashboard de Progresso ]">[ Dashboard de Progresso ]</h1>
-    <p class="console-text" id="dashboard-status">C:\\> Carregando_dados_do_sistema...</p>
+    <h1 class="glitch" data-text="[ Dashboard v2.0 ]">[ Dashboard v2.0 ]</h1>
+    <p class="console-text" id="dashboard-status">C:\\> Inicializando_modulos...</p>
 
     <div class="dashboard-grid">
+      
       <div class="stat-card">
         <h2 class="card-title">Tarefas</h2>
- <div class="stat-group">
+        <div class="stat-group">
           <p>Total: <span id="tarefas-total" class="stat-value">0</span></p>
           <p>Concluídas: <span id="tarefas-concluidas" class="stat-value" style="color: #00ff00;">0</span></p>
           <p>Pendentes: <span id="tarefas-pendentes" class="stat-value" style="color: #ff0000;">0</span></p>
         </div>
         <h3 class="card-subtitle">Prioridades (Pendentes)</h3>
         <div class="stat-group priority-group">
-          <p>Alta: <span id="tarefas-prio-alta" class="stat-value p-alta">0</span></p>
-          <p>Média: <span id="tarefas-prio-media" 
-class="stat-value p-media">0</span></p>
-          <p>Baixa: <span id="tarefas-prio-baixa" class="stat-value p-baixa">0</span></p>
+          <p>Alta: <span id="tarefas-prio-alta" class="stat-value p-alta" onclick="abrirModal('tarefas', 'Alta')">0</span></p>
+          <p>Média: <span id="tarefas-prio-media" class="stat-value p-media" onclick="abrirModal('tarefas', 'Media')">0</span></p>
+          <p>Baixa: <span id="tarefas-prio-baixa" class="stat-value p-baixa" onclick="abrirModal('tarefas', 'Baixa')">0</span></p>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="chartTarefas"></canvas>
         </div>
       </div>
 
@@ -39,148 +71,55 @@ class="stat-value p-media">0</span></p>
           <p>Total: <span id="projetos-total" class="stat-value">0</span></p>
           <p>Concluídos: <span id="projetos-concluidos" class="stat-value" style="color: #00ff00;">0</span></p>
           <p>Pendentes: <span id="projetos-pendentes" class="stat-value" style="color: #ff0000;">0</span></p>
-     </div>
+        </div>
         <h3 class="card-subtitle">Prioridades (Pendentes)</h3>
         <div class="stat-group priority-group">
-          <p>Alta: <span id="projetos-prio-alta" class="stat-value p-alta">0</span></p>
-          <p>Média: <span id="projetos-prio-media" class="stat-value p-media">0</span></p>
-          <p>Baixa: <span id="projetos-prio-baixa" class="stat-value p-baixa">0</span></p>
+          <p>Alta: <span id="projetos-prio-alta" class="stat-value p-alta" onclick="abrirModal('projetos', 'Alta')">0</span></p>
+          <p>Média: <span id="projetos-prio-media" class="stat-value p-media" onclick="abrirModal('projetos', 'Media')">0</span></p>
+          <p>Baixa: <span id="projetos-prio-baixa" class="stat-value p-baixa" onclick="abrirModal('projetos', 'Baixa')">0</span></p>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="chartProjetos"></canvas>
         </div>
       </div>
 
       <div class="stat-card">
-        <h2 class="card-title">Tarefas Pendentes por Projeto</h2>
+        <h2 class="card-title">Top Projetos (Pendentes)</h2>
         <div class="stat-group" id="tarefas-por-projeto-lista">
           <p class="console-text">C:\\> Calculando...</p>
         </div>
       </div>
-      </div> <div class="stat-card chart-container">
-      <h2 class="card-title">Progresso Total 
-(Tarefas + Projetos)</h2>
-      <canvas id="progressoTotalChart"></canvas>
+
+      <div class="stat-card full-width-card">
+        <h2 class="card-title">Filtro Temporal (Protocolo Search)</h2>
+        
+        <div class="form-hacker" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+          <div class="form-group" style="flex: 1; min-width: 200px;">
+            <label class="console-label">>> Data Início:</label>
+            <input type="date" id="busca-inicio" class="form-input" style="width: 100%;">
+          </div>
+          
+          <div class="form-group" style="flex: 1; min-width: 200px;">
+            <label class="console-label">>> Data Fim:</label>
+            <input type="date" id="busca-fim" class="form-input" style="width: 100%;">
+          </div>
+
+          <div class="form-group" style="display: flex; gap: 10px;">
+            <button type="button" class="btn-hacker" onclick="buscarPorData('tarefas')">[ Buscar Tarefas ]</button>
+            <button type="button" class="btn-hacker" onclick="buscarPorData('projetos')" style="border-color: #00ffff; color: #00ffff;">[ Buscar Projetos ]</button>
+          </div>
+        </div>
+
+        <div id="resultado-busca-container" style="margin-top: 15px; max-height: 200px; overflow-y: auto; border-top: 1px dashed #333; padding-top: 10px; display: none;">
+          <p class="console-text" style="color: #ffff00;">>> Resultados da busca:</p>
+          <ul id="lista-resultados" style="list-style: none; padding: 0; margin: 0;"></ul>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', async () => {
-    const statusElement = document.getElementById('dashboard-status');
-try {
-      // 1. Buscar os dados da API unificada
-      const response = await fetch('/api/dashboard-stats');
-if (!response.ok) {
-        throw new Error(`Falha ao buscar dados: ${response.statusText}`);
-}
-      
-      const jsonResponse = await response.json();
-if (!jsonResponse.success || !jsonResponse.data) {
-        throw new Error('Resposta da API inválida.');
-}
-      
-      // --- ALTERAÇÃO: Pega a nova estatística ---
-      const { tarefas: t, projetos: p, tarefasPorProjeto: tpp } = jsonResponse.data;
-      // -----------------------------------------
+<%- include('partials/modal-detalhes') %>
 
-statusElement.textContent = "C:\\> Dados_carregados_com_sucesso. Renderizando_gráficos...";
-      statusElement.style.color = '#00ff00';
-
-      // 2. Popular Card de Tarefas
-      document.getElementById('tarefas-total').textContent = t.total ||
-0;
-      document.getElementById('tarefas-concluidas').textContent = t.concluidas || 0;
-      document.getElementById('tarefas-pendentes').textContent = t.pendentes || 0;
-      document.getElementById('tarefas-prio-alta').textContent = t.prioridades?.Alta || 0;
-      document.getElementById('tarefas-prio-media').textContent = t.prioridades?.Media ||
-0;
-      document.getElementById('tarefas-prio-baixa').textContent = t.prioridades?.Baixa || 0;
-
-      // 3. Popular Card de Projetos
-      document.getElementById('projetos-total').textContent = p.total ||
-0;
-      document.getElementById('projetos-concluidos').textContent = p.concluidas || 0;
-      document.getElementById('projetos-pendentes').textContent = p.pendentes || 0;
-      document.getElementById('projetos-prio-alta').textContent = p.prioridades?.Alta || 0;
-      document.getElementById('projetos-prio-media').textContent = p.prioridades?.Media ||
-0;
-      document.getElementById('projetos-prio-baixa').textContent = p.prioridades?.Baixa || 0;
-
-      // 4. Renderizar Gráfico Combinado
-      const ctx = document.getElementById('progressoTotalChart').getContext('2d');
-
-      Chart.defaults.color = '#00ff00';
-
-      Chart.defaults.borderColor = 'rgba(159, 0, 255, 0.2)';
-
-
-      new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Pendentes', 'Concluídas'],
-          datasets: [{
-            label: 'Progresso Total',
-            data: [
-              (t.pendentes || 0) + (p.pendentes 
-|| 0),
-              (t.concluidas || 0) + (p.concluidas || 0)
-            ],
-            backgroundColor: [
-              'rgba(255, 0, 0, 0.7)',
-              'rgba(0, 255, 0, 0.7)'
-   ],
-            borderColor: '#9f00ff',
-            borderWidth: 2,
-            hoverOffset: 4,
-            hoverBorderColor: '#00ff00'
-          }]
-        },
-        options: {
-          responsive: true,
-      maintainAspectRatio: false,
-          cutout: '60%',
-          plugins: {
-            legend: {
-              position: 'top',
-              labels: {
-                color: '#00ff00',
-           font: {
-                  size: 14,
-                  family: "'Courier New', Courier, monospace"
-                }
-              }
-            },
-       tooltip: {
-              backgroundColor: 'rgba(0, 0, 0, 0.8)',
-              titleColor: '#9f00ff',
-              bodyColor: '#00ff00',
-              borderColor: '#9f00ff',
-              borderWidth: 1
-            }
-        }
-        }
-      });
-
-      // --- NOVO: 5. Popular Card "Tarefas por Projeto" ---
-      const listaProjetosElement = document.getElementById('tarefas-por-projeto-lista');
-      if (tpp && tpp.length > 0) {
-        listaProjetosElement.innerHTML = ''; // Limpa o "Calculando..."
-        
-        tpp.forEach(item => {
-          const p = document.createElement('p');
-          // Define a cor baseada no nome do projeto
-          const cor = item.projetoNome === 'Sem Projeto' ? '#ff0000' : '#00ffff';
-          
-          p.innerHTML = `${item.projetoNome}: <span class="stat-value" style="color: ${cor};">${item.count}</span>`;
-          listaProjetosElement.appendChild(p);
-        });
-      } else {
-        listaProjetosElement.innerHTML = '<p class="console-text" style="color: #ffff00;">C:\\> Nenhuma tarefa pendente encontrada...</p>';
-      }
-      // -------------------------------------------------
-
-} catch (error) {
-      console.error('Erro ao carregar dashboard:', error);
-      statusElement.textContent = `C:\\> ERRO_AO_CARREGAR_DADOS: ${error.message}`;
-statusElement.style.color = '#ff0000'; 
-    }
-  });
-</script>
+<script src="/js/dashboard-logic.js"></script>

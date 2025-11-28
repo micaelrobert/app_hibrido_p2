@@ -63,13 +63,25 @@
             <span class="item-texto">
               <strong class="item-nome">[<%= tarefa.nome %>]</strong>
               
+              <% if (tarefa.tags && tarefa.tags.length > 0) { %>
+                <span class="item-detalhe" style="color: #ff00ff;"> { tags: [<%= tarefa.tags.join(', ') %>] } </span>
+              <% } %>
+
               <% if (tarefa.projeto) { %>
                 <span class="item-detalhe" style="color: #00ffff;">- Projeto: <%= tarefa.projeto.nome %></span>
               <% } %>
               
               <span class="item-detalhe">- Prioridade: <%= tarefa.prioridade %></span>
               <span class="item-data">(Criada em: <%= new Date(tarefa.dataCriacao).toLocaleDateString('pt-BR') %>)</span>
-            </span> <div class="botoes-item">
+            </span> 
+            
+            <div class="botoes-item">
+              <button class="btn-acao btn-tag" onclick="adicionarTag('<%= tarefa._id %>')">[ +Tag ]</button>
+
+              <% if (tarefa.prioridade !== 'Alta') { %>
+                <button class="btn-acao btn-urgente" onclick="marcarUrgente('<%= tarefa._id %>')">[ !Urgente! ]</button>
+              <% } %>
+
               <button class="btn-acao btn-concluir">
                 <%= tarefa.concluido ? '[ Reabrir ]' : '[ Concluir ]' %>
               </button>
@@ -85,11 +97,59 @@
 </div>
 
 <script>
+  // --- FUNÇÕES GLOBAIS PARA AS NOVAS TAREFAS ---
+
+  // Tarefa 2: Função para adicionar tag via prompt
+  async function adicionarTag(id) {
+    const tag = prompt("C:\\> Digite a nova tag para adicionar:");
+    if (!tag) return;
+
+    try {
+      const response = await fetch(`/api/mongodb/tarefas/${id}/tags`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tag }),
+      });
+
+      if (response.ok) {
+        window.location.reload(); // Recarrega para mostrar a tag
+      } else {
+        const data = await response.json();
+        alert('Erro: ' + (data.error || 'Falha ao adicionar tag'));
+      }
+    } catch (error) {
+      console.error('Erro:', error);
+      alert('Erro de conexão.');
+    }
+  }
+
+  // Tarefa 4: Função para marcar como urgente
+  async function marcarUrgente(id) {
+    if (!confirm("C:\\> ATENÇÃO: Transformar esta tarefa em Prioridade ALTA e adicionar tag 'urgente'?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/mongodb/tarefas/${id}/urgente`, {
+        method: 'PUT'
+      });
+
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        alert('Erro ao marcar como urgente.');
+      }
+    } catch (error) {
+      console.error('Erro:', error);
+    }
+  }
+
+  // --- LÓGICA EXISTENTE ---
+
   // Adicionar Tarefa
   document.getElementById('form-nova-tarefa').addEventListener('submit', async function (e) {
     e.preventDefault();
     
-    // CORREÇÃO: Constantes movidas para dentro do handler
     const nome = this.elements.nome.value;
     const prioridade = this.elements.prioridade.value;
     const projeto = this.elements.projeto.value;
@@ -101,14 +161,13 @@
         body: JSON.stringify({ nome, prioridade, projeto: projeto || null }),
       });
 
-      // CORREÇÃO: Bloco 'if' movido para dentro do 'try'
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Falha ao criar tarefa.');
       }
 
       const novaTarefa = await response.json();
-      adicionarTarefaNaLista(novaTarefa); // 'novaTarefa' agora vem populada da API
+      adicionarTarefaNaLista(novaTarefa);
 
       this.reset();
       this.elements.nome.focus();
@@ -171,7 +230,7 @@
         li.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
         li.style.opacity = '0';
         li.style.transform = 'translateX(-100%)';
-         
+          
         setTimeout(() => {
           li.remove();
           const lista = document.getElementById('lista-tarefas');
@@ -205,6 +264,11 @@
       ? `<span class="item-detalhe" style="color: #00ffff;">- Projeto: ${tarefa.projeto.nome}</span>`
       : '';
 
+    // Botão urgente condicional
+    const btnUrgenteHtml = tarefa.prioridade !== 'Alta' 
+      ? `<button class="btn-acao btn-urgente" onclick="marcarUrgente('${tarefa._id}')">[ !Urgente! ]</button>`
+      : '';
+
     li.innerHTML = `
       <span class="item-texto">
         <strong class="item-nome">[${tarefa.nome}]</strong>
@@ -213,6 +277,8 @@
         <span class="item-data">(Criada em: ${new Date(tarefa.dataCriacao).toLocaleDateString('pt-BR')})</span>
       </span>
       <div class="botoes-item">
+        <button class="btn-acao btn-tag" onclick="adicionarTag('${tarefa._id}')">[ +Tag ]</button>
+        ${btnUrgenteHtml}
         <button class="btn-acao btn-concluir">[ Concluir ]</button>
         <button class="btn-acao btn-apagar">[ Apagar ]</button>
       </div>

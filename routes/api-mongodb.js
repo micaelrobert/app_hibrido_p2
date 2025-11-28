@@ -8,14 +8,18 @@
 const express = require('express');
 const router = express.Router();
 
-// Importa o serviço que contém a lógica de negócios
-// Adicionamos 'atualizar'
+// Importa o serviço com a lógica de negócios
 const {
   listar,
   criar,
   remover,
   stats,
   atualizar,
+  // Novos métodos da Prova 03
+  buscarPorPrioridade,
+  adicionarTag,
+  buscarPorIntervaloData,
+  marcarComoUrgente
 } = require('../services/TarefaService');
 
 /**
@@ -31,17 +35,12 @@ const logRequests = (req, res, next) => {
   next();
 };
 
-// Aplica o middleware de log para todas as rotas neste arquivo
 router.use(logRequests);
 
 // ============================================================================
-// 📝 ROTAS DE TAREFAS (MongoDB)
+// 📝 ROTAS DE TAREFAS (PADRÃO)
 // ============================================================================
 
-/**
- * Rota: GET /api/mongodb/tarefas
- * Descrição: Lista todas as tarefas do MongoDB.
- */
 router.get('/', async (req, res) => {
   try {
     const tarefas = await listar();
@@ -52,14 +51,10 @@ router.get('/', async (req, res) => {
   }
 });
 
-/**
- * Rota: POST /api/mongodb/tarefas
- * Descrição: Cria uma nova tarefa no MongoDB.
- */
 router.post('/', async (req, res) => {
   try {
     const novaTarefa = await criar(req.body);
-    res.status(201).json(novaTarefa); // 201 Created
+    res.status(201).json(novaTarefa);
   } catch (error) {
     console.error('[Erro API Criar]', error.message);
     if (error.name === 'ValidationError') {
@@ -70,10 +65,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-/**
- * Rota: PUT /api/mongodb/tarefas/:id
- * Descrição: Atualiza uma tarefa (concluído ou prioridade).
- */
 router.put('/:id', async (req, res) => {
   try {
     const id = req.params.id;
@@ -85,16 +76,11 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-
-/**
- * Rota: DELETE /api/mongodb/tarefas/:id
- * Descrição: Remove uma tarefa do MongoDB pelo ID.
- */
 router.delete('/:id', async (req, res) => {
   try {
     const id = req.params.id;
     await remover(id);
-    res.status(204).json({ success: true }); // 204 No Content
+    res.status(204).json({ success: true });
   } catch (error) {
     console.error('[Erro API Remover]', error.message);
     res.status(500).json({ success: false, error: 'Falha ao remover tarefa: ' + error.message });
@@ -102,19 +88,68 @@ router.delete('/:id', async (req, res) => {
 });
 
 // ============================================================================
-// 📊 ROTA DE ESTATÍSTICAS (Dashboard)
+// 🧪 ROTAS DE TESTE DA PROVA 03
 // ============================================================================
 
-/**
- * Rota: GET /api/mongodb/tarefas/stats
- * Descrição: Retorna estatísticas das tarefas para o Dashboard.
- * NOTA: Esta rota é mantida caso algo ainda a utilize,
- * mas o ideal é usar a rota unificada /api/dashboard-stats
- */
-router.get('/stats', async (req, res) => {
-  console.log('[API Tarefas] Recebida requisição GET para /stats');
+// Tarefa 1: Buscar por prioridade
+// GET /api/mongodb/tarefas/filtro/prioridade/Alta
+router.get('/filtro/prioridade/:nivel', async (req, res) => {
   try {
-    const estatisticas = await stats();
+    const tarefas = await buscarPorPrioridade(req.params.nivel);
+    res.json(tarefas);
+  } catch (error) {
+    console.error('[Erro API Prioridade]', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Tarefa 2: Adicionar Tag
+// POST /api/mongodb/tarefas/:id/tags
+router.post('/:id/tags', async (req, res) => {
+  try {
+    const tarefa = await adicionarTag(req.params.id, req.body.tag);
+    res.json({ success: true, data: tarefa });
+  } catch (error) {
+    console.error('[Erro API Tag]', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Tarefa 3: Buscar por datas
+// GET /api/mongodb/tarefas/filtro/data?inicio=2023-01-01&fim=2023-12-31
+router.get('/filtro/data', async (req, res) => {
+  try {
+    const { inicio, fim } = req.query;
+    if (!inicio || !fim) throw new Error('Datas de inicio e fim são obrigatórias');
+    
+    const tarefas = await buscarPorIntervaloData(inicio, fim);
+    res.json(tarefas);
+  } catch (error) {
+    console.error('[Erro API Data]', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Tarefa 4: Marcar como Urgente
+// PUT /api/mongodb/tarefas/:id/urgente
+router.put('/:id/urgente', async (req, res) => {
+  try {
+    const tarefa = await marcarComoUrgente(req.params.id);
+    res.json({ success: true, data: tarefa });
+  } catch (error) {
+    console.error('[Erro API Urgente]', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================================
+// 📊 ESTATÍSTICAS (Tarefa 5)
+// ============================================================================
+
+router.get('/stats', async (req, res) => {
+  console.log('[API Tarefas] Buscando estatísticas atualizadas...');
+  try {
+    const estatisticas = await stats(); // Agora chama a agregação nova
     res.json({ success: true, data: estatisticas });
   } catch (error) {
     console.error('[Erro API Stats]', error.message);
